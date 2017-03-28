@@ -1,2 +1,3 @@
 # STNLocalization
 This project deals with the subthalamus nucleus (STN) localization using machine learning algorithms.
+Brain signals (MERs) were first filtered at different frequency bands. More than 40 different features were extracted from those filtered signals. Applying clustering and classification algorithms to segment the MERs and correlate them with different regions of the brain, we are looking for the optimal offline and online solutions to the localization of Subthalamic Nucleus (STN), a tiny region in the brain where the medical device should be planted for deep brain stimulation (DBS) treatment of Pakinson’s disease patients.
