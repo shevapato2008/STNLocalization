@@ -1,5 +1,5 @@
 %% Set current folder %%
-cd('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code')
+cd('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Program')
 
 
 %% Load raw signal, LFP signal, and depth data %%
