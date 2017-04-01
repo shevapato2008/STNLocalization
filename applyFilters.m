@@ -5,10 +5,13 @@ function applyFilters(rawSignal, lfp, ...
       
 %% Load filters %%
 % (1) High-pass filter for Spikes - 48 kHz filter
+disp('    loading high-pass filter...');
 filter = load('Filters\HPFilt_300_3000.mat');
     % fvtool(filter.HPFilt_300_3000)      % choose 300-3000 Hz: according to 
     % title('High-pass filter 300-3000')  % R. Q. Quiroga's 2015 paper.
+    
 % (2) Band-pass filters for the given LFP - 1 kHz filters
+disp('    loading band-pass filters...');
 % (2.1) high gamma filter 50Hz - 90Hz
 load('Filters\highGammaFilter.mat');
     % fvtool(highGammaFilter)
@@ -40,11 +43,14 @@ load('Filters\infraSlowFilter.mat');
 
 
 %% Apply the filters %%
+disp('    Applying filters...');
 % (1) High-pass filter for Spikes - 48 kHz filter
+disp('    Generating and saving high-pass filtered signal...');
 hpfSignal = filtfilt(filter.HPFilt_300_3000, rawSignal);
 save(hpfSignalPath, varname(hpfSignal));
 
 % (2) Band-pass filters for the given LFP - 1 kHz filters
+disp('    Generating and saving band-pass filtered signals...');
 % (2.1) high gamma filter 50Hz - 90Hz
 highGammaSignal = filtfilt(highGammaFilter, lfp);
 save(highGammaSignalPath, varname(highGammaSignal));
