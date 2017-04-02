@@ -1,4 +1,4 @@
-function matrix = epochMatrix(signal, epochDur, fs)
+function matrix = getEpochMatrix(signal, epochDur, fs)
 
 % This function converts 1D signal to a 50% overlapping epoch matrix. Extra
 % value will be truncated.
@@ -11,7 +11,7 @@ function matrix = epochMatrix(signal, epochDur, fs)
 rowLen = epochDur * fs;
 
 % create zero matrix to store epoch matrix
-matrix = zeros(2*floor(length(signal)/rowLen), rowLen);
+matrix = zeros(2 * floor(length(signal) / rowLen), rowLen);
 
 % use while loop to fill the matrix with 50% overlapping signal values
 rowIdx = 1;
