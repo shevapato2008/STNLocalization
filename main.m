@@ -130,117 +130,119 @@ rawSignal{6} = loadRawSignal('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 
 lfp{6} = loadLFP('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 depth{6} = loadDepth('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 
+disp('Saving rawSignal.mat ...');
+save('Data\Raw\rawSignal.mat', 'rawSignal', '-v7.3');
+disp('Saving lfp.mat ...');
+save('Data\Raw\lfp.mat', 'lfp', '-v7.3');
 
-pwelch(rawSignal1, [], [], [], 48000)
-pwelch(lfp13, [], [], [], 1000)
-depth = temp.apmdata.drive_data(2).depth;
+disp('Loading rawSignal.mat ...');
+load('Data\Raw\rawSignal.mat');
+disp('Loading lfp.mat ...');
+load('Data\Raw\lfp.mat');
+
+pwelch(rawSignal{1}, [], [], [], 48000)
+pwelch(lfp{1}, [], [], [], 1000)
+
 
 
 %% Merge signal with depth data
+for i = 1 : 6
+    disp(['Start generating rawRecording{' num2str(i) '} ...']);
+    rawRecording{i} = mergeSgnlDpth('rawSignal', rawSignal{i}, depth{i});
+    disp(['Start generating lfpRecording{' num2str(i) '} ...']);
+    lfpRecording{i} = mergeSgnlDpth('lfp', lfp{i}, depth{i});
+end
 
+disp('Saving rawRecording.mat ...');
+save('Data\Raw\rawRecording.mat', 'rawRecording', '-v7.3');
+disp('Saving lfpRecording.mat ...');
+save('Data\Raw\lfpRecording.mat', 'lfpRecording', '-v7.3');
+
+disp('Loading rawRecording.mat ...');
+load('Data\Raw\rawRecording.mat');
+disp('Loading lfpRecording.mat ...');
+load('Data\Raw\lfpRecording.mat');
 
 
 
 %% Apply the filters
-applyFilters(rawSignal1, lfp1, ...
-    	  'Data\Filtered\hpfSignal1.mat', 'Data\Filtered\highGammaSignal1.mat', ...
-          'Data\Filtered\lowGammaSignal1.mat', 'Data\Filtered\alphaSignal1.mat', ...
-          'Data\Filtered\betaSignal1.mat', 'Data\Filtered\thetaSignal1.mat', ...
-          'Data\Filtered\deltaSignal1.mat', 'Data\Filtered\infraSlowSignal1.mat');
-
-applyFilters(rawSignal2, lfp2, ...
-    	  'Data\Filtered\hpfSignal2.mat', 'Data\Filtered\highGammaSignal2.mat', ...
-          'Data\Filtered\lowGammaSignal2.mat', 'Data\Filtered\alphaSignal2.mat', ...
-          'Data\Filtered\betaSignal2.mat', 'Data\Filtered\thetaSignal2.mat', ...
-          'Data\Filtered\deltaSignal2.mat', 'Data\Filtered\infraSlowSignal2.mat');
-
-applyFilters(rawSignal3, lfp3, ...
-    	  'Data\Filtered\hpfSignal3.mat', 'Data\Filtered\highGammaSignal3.mat', ...
-          'Data\Filtered\lowGammaSignal3.mat', 'Data\Filtered\alphaSignal3.mat', ...
-          'Data\Filtered\betaSignal3.mat', 'Data\Filtered\thetaSignal3.mat', ...
-          'Data\Filtered\deltaSignal3.mat', 'Data\Filtered\infraSlowSignal3.mat');
-
-applyFilters(rawSignal4, lfp4, ...
-    	  'Data\Filtered\hpfSignal4.mat', 'Data\Filtered\highGammaSignal4.mat', ...
-          'Data\Filtered\lowGammaSignal4.mat', 'Data\Filtered\alphaSignal4.mat', ...
-          'Data\Filtered\betaSignal4.mat', 'Data\Filtered\thetaSignal4.mat', ...
-          'Data\Filtered\deltaSignal4.mat', 'Data\Filtered\infraSlowSignal4.mat');
-
-applyFilters(rawSignal5, lfp5, ...
-    	  'Data\Filtered\hpfSignal5.mat', 'Data\Filtered\highGammaSignal5.mat', ...
-          'Data\Filtered\lowGammaSignal5.mat', 'Data\Filtered\alphaSignal5.mat', ...
-          'Data\Filtered\betaSignal5.mat', 'Data\Filtered\thetaSignal5.mat', ...
-          'Data\Filtered\deltaSignal5.mat', 'Data\Filtered\infraSlowSignal5.mat');
-
-applyFilters(rawSignal6, lfp6, ...
-    	  'Data\Filtered\hpfSignal6.mat', 'Data\Filtered\highGammaSignal6.mat', ...
-          'Data\Filtered\lowGammaSignal6.mat', 'Data\Filtered\alphaSignal6.mat', ...
-          'Data\Filtered\betaSignal6.mat', 'Data\Filtered\thetaSignal6.mat', ...
-          'Data\Filtered\deltaSignal6.mat', 'Data\Filtered\infraSlowSignal6.mat');
-
-applyFilters(rawSignal7, lfp7, ...
-    	  'Data\Filtered\hpfSignal7.mat', 'Data\Filtered\highGammaSignal7.mat', ...
-          'Data\Filtered\lowGammaSignal7.mat', 'Data\Filtered\alphaSignal7.mat', ...
-          'Data\Filtered\betaSignal7.mat', 'Data\Filtered\thetaSignal7.mat', ...
-          'Data\Filtered\deltaSignal7.mat', 'Data\Filtered\infraSlowSignal7.mat');
-
-applyFilters(rawSignal8, lfp8, ...
-    	  'Data\Filtered\hpfSignal8.mat', 'Data\Filtered\highGammaSignal8.mat', ...
-          'Data\Filtered\lowGammaSignal8.mat', 'Data\Filtered\alphaSignal8.mat', ...
-          'Data\Filtered\betaSignal8.mat', 'Data\Filtered\thetaSignal8.mat', ...
-          'Data\Filtered\deltaSignal8.mat', 'Data\Filtered\infraSlowSignal8.mat');
-
-applyFilters(rawSignal9, lfp9, ...
-    	  'Data\Filtered\hpfSignal9.mat', 'Data\Filtered\highGammaSignal9.mat', ...
-          'Data\Filtered\lowGammaSignal9.mat', 'Data\Filtered\alphaSignal9.mat', ...
-          'Data\Filtered\betaSignal9.mat', 'Data\Filtered\thetaSignal9.mat', ...
-          'Data\Filtered\deltaSignal9.mat', 'Data\Filtered\infraSlowSignal9.mat');
-
-applyFilters(rawSignal10, lfp10, ...
-    	  'Data\Filtered\hpfSignal10.mat', 'Data\Filtered\highGammaSignal10.mat', ...
-          'Data\Filtered\lowGammaSignal10.mat', 'Data\Filtered\alphaSignal10.mat', ...
-          'Data\Filtered\betaSignal10.mat', 'Data\Filtered\thetaSignal10.mat', ...
-          'Data\Filtered\deltaSignal10.mat', 'Data\Filtered\infraSlowSignal10.mat');
-
-applyFilters(rawSignal11, lfp11, ...
-    	  'Data\Filtered\hpfSignal11.mat', 'Data\Filtered\highGammaSignal11.mat', ...
-          'Data\Filtered\lowGammaSignal11.mat', 'Data\Filtered\alphaSignal11.mat', ...
-          'Data\Filtered\betaSignal11.mat', 'Data\Filtered\thetaSignal11.mat', ...
-          'Data\Filtered\deltaSignal11.mat', 'Data\Filtered\infraSlowSignal11.mat');
-
-applyFilters(rawSignal12, lfp12, ...
-    	  'Data\Filtered\hpfSignal12.mat', 'Data\Filtered\highGammaSignal12.mat', ...
-          'Data\Filtered\lowGammaSignal12.mat', 'Data\Filtered\alphaSignal12.mat', ...
-          'Data\Filtered\betaSignal12.mat', 'Data\Filtered\thetaSignal12.mat', ...
-          'Data\Filtered\deltaSignal12.mat', 'Data\Filtered\infraSlowSignal12.mat');
-
-applyFilters(rawSignal13, lfp13, ...
-    	  'Data\Filtered\hpfSignal13.mat', 'Data\Filtered\highGammaSignal13.mat', ...
-          'Data\Filtered\lowGammaSignal13.mat', 'Data\Filtered\alphaSignal13.mat', ...
-          'Data\Filtered\betaSignal13.mat', 'Data\Filtered\thetaSignal13.mat', ...
-          'Data\Filtered\deltaSignal13.mat', 'Data\Filtered\infraSlowSignal13.mat');
+for i = 1 : 6
+    disp(['Generating filtered signals for recordings ' num2str(i) ' ...']);
+    applyFilters(rawSignal{i}, lfp{i}, ...
+        ['Data\Filtered\hpfSignal' num2str(i) '.mat'], ...
+        ['Data\Filtered\highGammaSignal' num2str(i) '.mat'], ...
+        ['Data\Filtered\lowGammaSignal' num2str(i) '.mat'], ...
+        ['Data\Filtered\alphaSignal' num2str(i) '.mat'], ...
+        ['Data\Filtered\betaSignal' num2str(i) '.mat'], ...
+        ['Data\Filtered\thetaSignal' num2str(i) '.mat'], ...
+        ['Data\Filtered\deltaSignal' num2str(i) '.mat'], ...
+        ['Data\Filtered\infraSlowSignal' num2str(i) '.mat']);
+end
 
 load('Filtered\hpfSignal1.mat');
-pwelch(rawSignal1, [], [], [], 48000)
-pwelch(hpfSignal1, [], [], [], 48000)
+pwelch(rawSignal{1}, [], [], [], 48000)
+pwelch(hpfSignal, [], [], [], 48000)
 
 load('Filtered\highGammaSignal1.mat');
-pwelch(highGammaSignal1, [], [], [], 48000)
+pwelch(highGammaSignal, [], [], [], 1000)
+
 
 
 %% Convert 1D input signal to a matrix of epochs with 50% overlapping as rows
 % divide into epochs of 4 seconds
-temp = load('Data\Filtered\hpfSignal1.mat');
-hpfSignal1_epoch = epochMatrix(temp.hpfSignal, 4, 48000);
+for i = 1 : 6
+    
+    disp(['Start group ' num2str(i) ' epoch matrices...']);
+    
+    temp = load(['Data\Filtered\hpfSignal' num2str(i) '.mat']);
+    disp(['    Generating hpfSignalEpoch' num2str(i) '...']);
+    hpfSignalEpoch = getEpochMatrix(temp.hpfSignal, 4, 48000);
+    disp(['    Saving hpfSignalEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat'], 'hpfSignalEpoch', '-v7.3');
 
-lfp1_epoch = epochMatrix(lfp1, 4, 1000);
+    temp = load(['Data\Filtered\alphaSignal' num2str(i) '.mat']);
+    disp(['    Generating alphaSignalEpoch' num2str(i) '...']);
+    alphaSignalEpoch = getEpochMatrix(temp.alphaSignal, 4, 1000);
+    disp(['    Saving alphaSignalEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], 'alphaSignalEpoch', '-v7.3');
 
-save(sprintf('datafile_%02d', i), 'random_sample');
+    temp = load(['Data\Filtered\betaSignal' num2str(i) '.mat']);
+    disp(['    Generating betaSignalEpoch' num2str(i) '...']);
+    betaSignalEpoch = getEpochMatrix(temp.betaSignal, 4, 1000);
+    disp(['    Saving betaSignalEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], 'betaSignalEpoch', '-v7.3');
 
+    temp = load(['Data\Filtered\deltaSignal' num2str(i) '.mat']);
+    disp(['    Generating deltaSignalEpoch' num2str(i) '...']);
+    deltaSignalEpoch = getEpochMatrix(temp.deltaSignal, 4, 1000);
+    disp(['    Saving deltaSignalEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\deltaSignal' num2str(i) 'Epoch.mat'], 'deltaSignalEpoch', '-v7.3');
 
+    temp = load(['Data\Filtered\thetaSignal' num2str(i) '.mat']);
+    disp(['    Generating thetaSignalEpoch' num2str(i) '...']);
+    thetaSignalEpoch = getEpochMatrix(temp.thetaSignal, 4, 1000);
+    disp(['    Saving thetaSignalEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\thetaSignal' num2str(i) 'Epoch.mat'], 'thetaSignalEpoch', '-v7.3');
 
+    temp = load(['Data\Filtered\lowGammaSignal' num2str(i) '.mat']);
+    disp(['    Generating thetaSignalEpoch' num2str(i) '...']);
+    lowGammaSignalEpoch = getEpochMatrix(temp.lowGammaSignal, 4, 1000);
+    disp(['    Saving thetaSignalEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\lowGammaSignal' num2str(i) 'Epoch.mat'], 'lowGammaSignalEpoch', '-v7.3');
 
+    temp = load(['Data\Filtered\highGammaSignal' num2str(i) '.mat']);
+    disp(['    Generating highGammaSignalEpoch' num2str(i) '...']);
+    highGammaSignalEpoch = getEpochMatrix(temp.highGammaSignal, 4, 1000);
+    disp(['    Saving highGammaSignalEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\highGammaSignal' num2str(i) 'Epoch.mat'], 'highGammaSignalEpoch', '-v7.3');
 
+    temp = load(['Data\Filtered\infraSlowSignal' num2str(i) '.mat']);
+    disp(['    Generating infraSlowSignalEpoch' num2str(i) '...']);
+    infraSlowSignalEpoch = getEpochMatrix(temp.infraSlowSignal, 4, 1000);
+    disp(['    Saving infraSlowSignalEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\infraSlowSignal' num2str(i) 'Epoch.mat'], 'infraSlowSignalEpoch', '-v7.3');
+    
+end
 
 
 %% Spike detection
@@ -303,34 +305,3 @@ axis(ax, [1 1000 -3000 3000])
 axis(ax, [1 10000 -3000 3000])
 axis(ax, [1 100000 -3000 3000])
 
-
-%% Load depth data %%
-depthData1 = load('depth1.mat');
-depth1 = depthData1.depthData1;
-figure
-plot(depth1(:, 1), depth1(:, 2));                               % plot the depth data
-
-
-%% Merge raw, LFP, and spike signals with depth data respectively %%
-raw_record1 = mergeSgnlDpth(raw_sgnl1, depth1);
-lpf_record1 = mergeSgnlDpth(lpf_sgnl1, depth1);
-hpf_record1 = mergeSgnlDpth(hpf_sgnl1, depth1);
-
-save('Data\Filtered\raw_record1.mat', 'raw_record1')
-save('Data\Filtered\lpf_record1.mat', 'lpf_record1')
-save('Data\Filtered\hpf_record1.mat', 'hpf_record1')
-
-load('Data\Filtered\raw_record1.mat', 'raw_record1')
-load('Data\Filtered\lpf_record1.mat', 'lpf_record1')
-load('Data\Filtered\hpf_record1.mat', 'hpf_record1')
-
-%% Plot the merged time-signal-depth recording to see the effect
-plotMER(raw_record1, 'Raw Signal')
-plotMER(lpf_record1, 'LFP')
-plotMER(hpf_record1, 'Spikes')
-% raw signal: depth - signal plot
-figure
-time = raw_record1(:, 1);
-signal = raw_record1(:, 2);
-depth = raw_record1(:, 3);
-plot(depth, signal);
