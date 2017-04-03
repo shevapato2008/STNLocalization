@@ -249,6 +249,9 @@ end
 temp = load('Data\Filtered\hpfSignal1.mat');
 [spikeLocs, spikeAmpls, spikes] = spikeDetection(temp.hpfSignal);
 
+
+
+
 %% Spike dependent features
 load('Filtered\hpfSignal.mat');
 sdf = spikeDepFeatures;
