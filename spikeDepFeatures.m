@@ -58,7 +58,7 @@ end
 function output = percentSpike(spikeLocs, signal)
     lenSpike = length(spikeLocs) * 25;     % Assuming each spike takes 25 sample points
     lenSignal = length(signal);
-    output = lenSpike / lenSignal;
+    output = 100 * (lenSpike / lenSignal);
 end
 
 % (5) Bursting Rate (BR) %
