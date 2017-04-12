@@ -114,7 +114,7 @@ function output = zero_crossing(vec)
     total = 0;
     for i = 1 : (len - 1)
         diff = sign(vec(i + 1)) - sign(vec(i));
-        total = total + diff;
+        total = total + abs(diff);
     end
     
     output = total / 2;
