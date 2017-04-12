@@ -67,7 +67,7 @@ function output = findBurst(spikeLocs)
     % create ISI array
     len = length(spikeLocs);
     meanISI = misi(spikeLocs);
-    isiArray = zeros(len - 1, 1);
+    isiArray = zeros(len - 1, 5);
     for i = 1 : (len - 1)
         isiArray(i, 1) = spikeLocs(i + 1) - spikeLocs(i);
     end
@@ -108,8 +108,9 @@ function output = findBurst(spikeLocs)
     end
     
     % find the bursts
-    for i = 1 : (len - 1)
-        % corner case
+    j = 1;
+    for i = 2 : (len - 1)
+        % corner case in the front
         if isiArray(1, 4) == 1
             isiArray(1, 5) = 1;
         else
@@ -123,8 +124,10 @@ function output = findBurst(spikeLocs)
         else
             j = 0;
         end
+        
         isiArray(i, 5) = j;
     end
+    
     for i = 2 : (len - 2)
         % corner cases
         if isiArray(1, 4) == 1 && isiArray(2, 4) == 0
@@ -138,6 +141,7 @@ function output = findBurst(spikeLocs)
             isiArray(i, 5) = 0;
         end
     end
+    
     % merge with spikelocs
     spikeLocs(2 : len, 2 : 6) = isiArray(:, 1 : 5);
     output = spikeLocs;
@@ -167,19 +171,21 @@ end
 function output = percentBurst(spikeLocs)
     len = length(spikeLocs);            % number of spikes
     bursts = findBurst(spikeLocs);
+    temp = zeros(len, 7);
+    temp(:, 1 : 6) = bursts(:, 1 : 6);
     % mark the burst related spikes with 1 in column 7 of bursts
-    for i = 1 : len
+    for i = 1 : (len - 1)
         if (bursts(i, 6) == 0 && bursts(i + 1, 6) ~= 0)
-            bursts(i, 7) = 1;
+            temp(i, 7) = 1;
         end
         if (bursts(i, 6) ~= 0)
-            bursts(i, 7) = 1;
+            temp(i, 7) = 1;
         end
     end
     % count the number of burst related spikes
     numBurstSpikes = 0;
     for i = 1 : len
-        if (bursts(i, 7) ~= 0)
+        if (temp(i, 7) ~= 0)
             numBurstSpikes = numBurstSpikes + 1;
         end
     end
