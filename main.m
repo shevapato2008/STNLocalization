@@ -130,15 +130,21 @@ rawSignal{6} = loadRawSignal('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 
 lfp{6} = loadLFP('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 depth{6} = loadDepth('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 
+% save rawSignal.mat, lfp.mat, and depth.mat
 disp('Saving rawSignal.mat ...');
 save('Data\Raw\rawSignal.mat', 'rawSignal', '-v7.3');
 disp('Saving lfp.mat ...');
 save('Data\Raw\lfp.mat', 'lfp', '-v7.3');
+disp('Saving depth.mat ...');
+save('Data\Raw\depth.mat', 'depth', '-v7.3');
 
+% load rawSignal.mat, lfp.mat, and depth.mat
 disp('Loading rawSignal.mat ...');
 load('Data\Raw\rawSignal.mat');
 disp('Loading lfp.mat ...');
 load('Data\Raw\lfp.mat');
+disp('Loading depth.mat ...');
+load('Data\Raw\depth.mat');
 
 pwelch(rawSignal{1}, [], [], [], 48000)
 pwelch(lfp{1}, [], [], [], 1000)
@@ -153,11 +159,13 @@ for i = 1 : 6
     lfpRecording{i} = mergeSgnlDpth('lfp', lfp{i}, depth{i});
 end
 
+% save rawRecording.mat and lfpRecording.mat
 disp('Saving rawRecording.mat ...');
 save('Data\Raw\rawRecording.mat', 'rawRecording', '-v7.3');
 disp('Saving lfpRecording.mat ...');
 save('Data\Raw\lfpRecording.mat', 'lfpRecording', '-v7.3');
 
+% load rawRecording.mat and lfpRecording.mat
 disp('Loading rawRecording.mat ...');
 load('Data\Raw\rawRecording.mat');
 disp('Loading lfpRecording.mat ...');
@@ -165,7 +173,15 @@ load('Data\Raw\lfpRecording.mat');
 
 
 
-%% Apply the filters
+%% Generate filtered data
+% save local field potential (lfp) data to filtered folder
+temp = load('Data\Raw\lfp.mat');
+for i = 1 : 6
+    lfp = temp.lfp{i};
+    save(['Data\Filtered\lfp' num2str(i) '.mat'], varname(lfp));
+end
+
+% Apply the filters
 for i = 1 : 6
     disp(['Generating filtered signals for recordings ' num2str(i) ' ...']);
     applyFilters(rawSignal{i}, lfp{i}, ...
@@ -200,6 +216,12 @@ for i = 1 : 6
     disp(['    Saving hpfSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat'], 'hpfSignalEpoch', '-v7.3');
 
+    temp = load(['Data\Filtered\lfp' num2str(i) '.mat']);
+    disp(['    Generating lfpEpoch' num2str(i) '...']);
+    lfpEpoch = getEpochMatrix(temp.lfp, 4, 1000);
+    disp(['    Saving lfpEpoch' num2str(i) '.mat...']);
+    save(['Data\Epoch\lfp' num2str(i) 'Epoch.mat'], 'lfpEpoch', '-v7.3');
+    
     temp = load(['Data\Filtered\alphaSignal' num2str(i) '.mat']);
     disp(['    Generating alphaSignalEpoch' num2str(i) '...']);
     alphaSignalEpoch = getEpochMatrix(temp.alphaSignal, 4, 1000);
@@ -245,37 +267,104 @@ for i = 1 : 6
 end
 
 
-%% Spike detection
-temp = load('Data\Filtered\hpfSignal1.mat');
-[spikeLocs, spikeAmpls, spikes] = spikeDetection(temp.hpfSignal);
 
+%% Generate feature matrices
 
+for i = 1 : 6
+    getFeatureMatrix(i, 13, ...
+        ['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\lfp' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\deltaSignal' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\infraSlowSignal' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\thetaSignal' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\lowGammaSignal' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\highGammaSignal' num2str(i) 'Epoch.mat'], ...
+    	['Data\Feature\featureMatrix' num2str(i) '.mat'])
+end
 
+%{
+% (1) Spike dependent features
+% load hpfSignalEpoch
+temp = load('Data\Epoch\hpfSignal1Epoch.mat');
+hpfSignalEpoch = temp.hpfSignalEpoch;
+numEpoch = size(hpfSignalEpoch, 1);
 
-%% Spike dependent features
-load('Filtered\hpfSignal.mat');
+% Create empty feature matrix
+featureMatrix = zeros(numEpoch, 50);
+
+% Load function handle of spike dependent features
 sdf = spikeDepFeatures;
-sdf
-sdf.br(spikeLocs, hpfSignal, 48000)
-sdf.fr(spikeLocs, hpfSignal, 48000)
-% you can try more
 
-%% Spike independent features
-load('Filtered\lpfSignal.mat');
-sif = spikeIndepFeatures;
-sif
-sif.powerxw_fft(lpfSignal, 11, 30)                          % try band 11-30
-powerBandRatio = sif.powerxw_pwelch(lfp1, 11, 30, 1000);	% try band 11-30
-peak2avgPower = sif.pkxw(lfp1, 11, 30, 1000);               % try band 11-30
-fmax2avgPower = sif.fmaxpkxw(lfp1, 11, 30, 1000);           % try band 11-30
+for i = 1 : numEpoch
+    % spike detection
+    spikeLocs = spikeDetection(transpose(hpfSignalEpoch(i, :)));
+    % [spikeLocs, spikeAmpls, spikes] = spikeDetection(transpose(hpfSignalEpoch(i, :)));
+    
+    % (1.1) Mean Inter-Spike Interval (MISI)
+    featureMatrix(i, 1) = sdf.misi(spikeLocs);
+    % (1.2) Inter-Spike Interval Standard Deviation (SISI)
+    featureMatrix(i, 2) = sdf.sisi(spikeLocs);
+    % (1.3) Inter-Spike Interval Coefficient of Variation (CVISI)
+    featureMatrix(i, 3) = sdf.cvisi(spikeLocs);
+    % (1.4) Percentage of Spikes in the Spike Signal (PS)
+    featureMatrix(i, 4) = sdf.ps(spikeLocs, transpose(hpfSignalEpoch(i, :)));
+    % (1.5) Bursting Rate (BR)
+    featureMatrix(i, 5) = sdf.br(spikeLocs, transpose(hpfSignalEpoch(i, :)), 48000);
+    % (1.6) Percentage of Bursts (PB)
+    featureMatrix(i, 6) = sdf.pb(spikeLocs);
+    % (1.7) Firing Rate (FR)
+    featureMatrix(i, 7) = sdf.fr(spikeLocs, transpose(hpfSignalEpoch(i, :)), 48000);
+end
+
+% (2) Spike independent features
+% load filtered signals
+load('Data\Epoch\lfp1Epoch.mat');               % lfp signal
+numEpoch = size(lfpEpoch, 1);
+
+load('Data\Epoch\alphaSignal1Epoch.mat');       % alpha signal 9Hz - 11Hz
+load('Data\Epoch\betaSignal1Epoch.mat');        % beta signal 13Hz - 30Hz
+load('Data\Epoch\deltaSignal1Epoch.mat');       % delta signal 1Hz - 4Hz
+load('Data\Epoch\infraSlowSignal1Epoch.mat');	% infra-slow signal 1Hz - 4Hz
+load('Data\Epoch\thetaSignal1Epoch.mat');       % theta signal 4Hz - 8Hz
+load('Data\Epoch\lowGammaSignal1Epoch.mat');	% low gamma signal 30Hz - 50Hz
+load('Data\Epoch\highGammaSignal1Epoch.mat');	% high gamma signal 50Hz - 90Hz
+
+% Load function handle of spike dependent features
+sdf = spikeIndepFeatures;
+
+for i = 1 : numEpoch
+    
+    % (2.1) Curve length
+    featureMatrix(i, 8) = sdf.curv_len(lfpEpoch(i, :));
+    % (2.2) Threshold
+    featureMatrix(i, 9) = sdf.thrshld(lfpEpoch(i, :));
+    % (2.3) Peaks
+    featureMatrix(i, 10) = sdf.peaks(lfpEpoch(i, :));
+    % (2.4) Root mean square amplitude
+    featureMatrix(i, 11) = sdf.rmsa(lfpEpoch(i, :));
+    % (2.5) Average nonlinear energy
+    featureMatrix(i, 12) = sdf.avg_nonlnr_energy(lfpEpoch(i, :));
+    % (2.6) Zero crossings
+    featureMatrix(i, 13) = sdf.zero_crossing(lfpEpoch(i, :));
+    
+end
+%}
 
 
 
+%% Normalization
+
+for i = 1 : 6
+    getNormFeatureMatrix(i, ...
+        ['Data\Feature\featureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat']);
+end
 
 
 
-
-
+%% Generate Activity Maps
 
 
 
