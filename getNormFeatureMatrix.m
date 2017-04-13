@@ -1,4 +1,5 @@
-function getNormFeatureMatrix(index, featureMatrixPath, normFeatureMatrixPath)
+function [ output_args ] = ...
+    getNormFeatureMatrix(index, featureMatrixPath, normFeatureMatrixPath)
 % Function getNormFeatureMatrix helps generate normalized feature matrices.
 
 load(featureMatrixPath);
