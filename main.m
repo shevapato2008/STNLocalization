@@ -6,7 +6,7 @@ cd('S:\Google Drive\Rutgers University\Research\DBS\Project\Matlab\Program')
 
 % 2010-11-30
 
-% Left STN Trial 1
+% Left STN Trial 1 (Negative values???)
 % Impedance checks:
 % 15mm:	0.31 MOhm
 % ZI Entry:	
@@ -37,7 +37,7 @@ rawSignal{2} = loadRawSignal('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 
 lfp{2} = loadLFP('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 depth{2} = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 
-% Right STN Trial 2 (2 mm posterior to track 1) ???
+% Right STN Trial 2 (2 mm posterior to track 1)
 % Impedance checks:
 % 15mm:	0.31 MOhm
 % ZI Entry:     N/A
@@ -206,6 +206,7 @@ pwelch(highGammaSignal, [], [], [], 1000)
 
 %% Convert 1D input signal to a matrix of epochs with 50% overlapping as rows
 % divide into epochs of 4 seconds
+% (1) get signal epoch matrices
 for i = 1 : 6
     
     disp(['Start group ' num2str(i) ' epoch matrices...']);
@@ -263,6 +264,23 @@ for i = 1 : 6
     infraSlowSignalEpoch = getEpochMatrix(temp.infraSlowSignal, 4, 1000);
     disp(['    Saving infraSlowSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\infraSlowSignal' num2str(i) 'Epoch.mat'], 'infraSlowSignalEpoch', '-v7.3');
+    
+end
+
+
+% (2) get depth epoch matrices
+
+% load rawRecording which has depth data integrated in it
+temp = load('Data\Raw\rawRecording.mat');
+
+% generate depth epoch matrices
+for i = 1 : 6
+    
+    disp(['Generating depth epoch matrix ' num2str(i) '...']);
+    depthData = temp.rawRecording{i}(:, 3);
+    depthEpoch = getEpochMatrix(depthData, 4, 48000);
+    disp(['    Saving depth' num2str(i) 'Epoch.mat...']);
+    save(['Data\Epoch\depth' num2str(i) 'Epoch.mat'], 'depthEpoch', '-v7.3');
     
 end
 
@@ -365,35 +383,19 @@ end
 
 
 %% Generate Activity Maps
+for i = 1 : 6
+    plotFeatureMaps(i, ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        ['Figures\normFeatureMap_sdf' num2str(i) '.jpg'], ...
+        ['Figures\normFeatureMap_sif' num2str(i) '.jpg']);
+end
 
 
 
 
 
-%% Plot to see the effect %%
-load('Filtered\raw_sgnl1.mat');
-load('Filtered\lpf_sgnl1.mat');
-load('Filtered\hpf_sgnl1.mat');
 
-figure
-ax(1) = subplot(3, 1, 1);
-plot(raw_sgnl1)
-xlabel('Time')
-ylabel('Signal')
-title('Raw Signal')
-ax(2) = subplot(3, 1, 2);
-plot(lpf_sgnl1)
-xlabel('Time')
-ylabel('Signal')
-title('Local Field Potential (LFP)')
-ax(3) = subplot(3, 1, 3);
-plot(hpf_sgnl1)
-xlabel('Time')
-ylabel('Signal')
-title('Spikes')
-% link and zoom in to show the changes
-linkaxes(ax(1 : 3),'xy')
-axis(ax, [1 1000 -3000 3000])
-axis(ax, [1 10000 -3000 3000])
-axis(ax, [1 100000 -3000 3000])
+
+
 
