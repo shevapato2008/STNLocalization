@@ -11,7 +11,7 @@ function matrix = getEpochMatrix(signal, epochDur, fs)
 rowLen = epochDur * fs;
 
 % create zero matrix to store epoch matrix
-matrix = zeros(2 * floor(length(signal) / rowLen), rowLen);
+matrix = zeros(floor(2 * (length(signal) - rowLen / 2) / rowLen), rowLen);
 
 % use while loop to fill the matrix with 50% overlapping signal values
 rowIdx = 1;
