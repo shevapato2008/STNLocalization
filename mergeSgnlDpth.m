@@ -19,13 +19,13 @@ function recording = mergeSgnlDpth(type, signal, depthData)
     key = 1;
     for i = 1 : signalLen
         if recording(i, 1) <= depthData(key, 1)
-            recording(i, 3) = depthData(key, 2);
+            recording(i, 3) = depthData(key, 3);
         else
             if key < depthLen
-                recording(i, 3) = depthData(key + 1, 2);
+                recording(i, 3) = depthData(key + 1, 3);
                 key = key + 1;
             else
-                recording(i, 3) = depthData(key, 2);
+                recording(i, 3) = depthData(key, 3);
             end
         end
     end
