@@ -6,51 +6,76 @@ cd('S:\Google Drive\Rutgers University\Research\DBS\Project\Matlab\Program')
 
 % 2010-11-30
 
-% Left STN Trial 1 (Negative values???)
-% Impedance checks:
-% 15mm:	0.31 MOhm
-% ZI Entry:	
-% STN Entry:	 2.15
-% STN Exit      -2.52
-% SN Entry:     -2.97
-% Bubbling with pulse causing some pulse artifact
-% Implanted to  -2.5
+% [Signal 1]
+%{
+Left STN Trial 1
+Impedance checks:
+15mm:	0.31 MOhm
+ZI Entry:	
+STN Entry:     2.15
+STN Exit      -2.52 [?]
+SN Entry:     -2.97 [?]
+Bubbling with pulse causing some pulse artifact
+Implanted to  -2.5 [?]
+%}
+
+% signal
 rawSignal1_part1 = loadRawSignal('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 rawSignal1_part2 = loadRawSignal('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 rawSignal{1} = vertcat(rawSignal1_part1, rawSignal1_part2);
 lfp1_part1 = loadLFP('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 lfp1_part2 = loadLFP('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 lfp{1} = vertcat(lfp1_part1, lfp1_part2);
+
+% depth
 depth1_part1 = loadDepth('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 depth1_part2 = loadDepth('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth{1} = vertcat(depth1_part1, depth1_part2);
+% remove the difference in time before concatenating the depth data
+diff = depth1_part2(1, 1) - depth1_part1(size(depth1_part1, 1), 1);
+depth1_part2(:, 1) = depth1_part2(:, 1) - diff + 1;
+depth_temp = vertcat(depth1_part1, depth1_part2);
+% convert original depth data to milimeters above target
+depth{1} = convertDepth(depth_temp);
 
-% Right STN Trial 1
-% Impedance checks:
-% 15mm:	0.34 MOhm
-% ZI Entry:     N/A
-% STN Entry:	5.94
-% STN Exit:     1.73
-% SN Entry:	
-% Implant to 1.5 above target
+
+% [Signal 2]
+%{
+Right STN Trial 1
+Impedance checks:
+15mm:	0.34 MOhm
+ZI Entry:     N/A
+STN Entry:	  5.94
+STN Exit:     1.73
+SN Entry:	
+Implant to 1.5 above target
+%}
+
 rawSignal{2} = loadRawSignal('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 lfp{2} = loadLFP('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth{2} = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
+depth_temp = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
+depth{2} = convertDepth(depth_temp);
 
-% Right STN Trial 2 (2 mm posterior to track 1)
-% Impedance checks:
-% 15mm:	0.31 MOhm
-% ZI Entry:     N/A
-% STN Entry:	4.3
-% STN Exit:     0.62
-% SN Entry:     N/A
+
+% [Signal 3]
+%{
+Right STN Trial 2 (2 mm posterior to track 1)
+Impedance checks:
+15mm:	0.31 MOhm
+ZI Entry:      N/A
+STN Entry:	   4.3
+STN Exit:     0.62
+SN Entry:      N/A
+%}
+
 rawSignal{3} = loadRawSignal('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 lfp{3} = loadLFP('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth{3} = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
+depth_temp = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
+depth{3} = convertDepth(depth_temp);
 
 
 % 2010-12-07
 
+%{
 % Left STN Trial 1
 % Impedance checks:
 % 15mm:	0.26 MOhm
@@ -59,7 +84,7 @@ depth{3} = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 s
 % STN Exit	N/A
 % SN Entry:	N/A
 % Cable switched during recording
-%{
+
 rawSignal5 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 rawSignal6 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 rawSignal7 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 2\WaveformData-Ch1.mat');
@@ -71,13 +96,18 @@ depth6 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 
 depth7 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 2\WaveformData-Ch1.mat');
 %}
 
-% Left STN Trial 2 (2mm posterior to track 1)
-% 11mm:	0.25 MOhm
-% ZI Entry:     N/A
-% STN Entry:	1.3
-% STN Exit:     0.2
-% SN Entry:     N/A
-% Quiet track from 4.5mm to -1mm
+
+% [Signal 4]
+%{
+Left STN Trial 2 (2mm posterior to track 1)
+11mm:	0.25 MOhm
+ZI Entry:     N/A
+STN Entry:	  1.3
+STN Exit:     0.2
+SN Entry:     N/A
+Quiet track from 4.5mm to -1mm
+%}
+
 rawSignal4_part1 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 rawSignal4_part2 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 rawSignal{4} = vertcat(rawSignal4_part1, rawSignal4_part2);
@@ -86,49 +116,75 @@ lfp4_part2 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 se
 lfp{4} = vertcat(lfp4_part1, lfp4_part2);
 depth4_part1 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 depth4_part2 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth{4} = vertcat(depth4_part1, depth4_part2);
+% remove the difference in time before concatenating the depth data
+diff = depth4_part2(1, 1) - depth4_part1(size(depth4_part1, 1), 1);
+depth4_part2(:, 1) = depth4_part2(:, 1) - diff + 1;
+depth_temp = vertcat(depth4_part1, depth4_part2);
+depth{4} = convertDepth(depth_temp);
 
-% Left STN Trial 3 (2mm anterior to track 1)
-% No impedance checks
-% ZI Entry:      N/A
-% STN Entry:	 2.5
-% STN Exit:     -2.3
-% SN Entry:     -2.7
-% Implant to 2.3 mm below target
+
+
+% [Signal 5]
+%{
+Left STN Trial 3 (2mm anterior to track 1)
+No impedance checks
+ZI Entry:      N/A
+STN Entry:	   2.5
+STN Exit:     -2.3
+SN Entry:     -2.7
+Implant to 2.3 mm below target
+%}
+
 rawSignal5_part1 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 rawSignal5_part2 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 rawSignal{5} = vertcat(rawSignal5_part1, rawSignal5_part2);
 lfp5_part1 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 lfp5_part2 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 lfp{5} = vertcat(lfp5_part1, lfp5_part2);
+
+% depth
 depth5_part1 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 depth5_part2 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth{5} = vertcat(depth5_part1, depth5_part2);
+% remove the difference in time before concatenating the depth data
+diff = depth5_part2(1, 1) - depth5_part1(size(depth5_part1, 1), 1);
+depth5_part2(:, 1) = depth5_part2(:, 1) - diff + 1;
+depth_temp = vertcat(depth5_part1, depth5_part2);
+depth{5} = convertDepth(depth_temp);
 
-% Right STN Trial 1
-% Impedance checks:
-% 15mm:	0.25 MOhm
-% ZI Entry:     N/A
-% STN Entry:	N/A
-% STN Exit:     N/A
-% SN Entry:     N/A
-% Electrode not clamped until 3.0mm, produces false map
+
+
 %{
+Right STN Trial 1
+Impedance checks:
+15mm:	0.25 MOhm
+ZI Entry:     N/A
+STN Entry:	N/A
+STN Exit:     N/A
+SN Entry:     N/A
+Electrode not clamped until 3.0mm, produces false map
+
 loadRawSignal('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 loadLFP('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 loadDepth('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
 %}
 
-% Right STN Trial 2 (2 mm anterior to track 1)
-% 15mm:	0.24 MOhm
-% ZI Entry:     N/A
-% STN Entry:	4.4
-% STN Exit:     0.34
-% SN Entry:    -0.42
-% Implant to 0.2 above target
+
+% [Signal 6]
+%{
+Right STN Trial 2 (2 mm anterior to track 1)
+15mm:	0.24 MOhm
+ZI Entry:      N/A
+STN Entry:	   4.4
+STN Exit:     0.34
+SN Entry:    -0.42
+Implant to 0.2 above target
+%}
+
 rawSignal{6} = loadRawSignal('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
 lfp{6} = loadLFP('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth{6} = loadDepth('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
+depth_temp = loadDepth('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
+depth{6} = convertDepth(depth_temp);
+
 
 % save rawSignal.mat, lfp.mat, and depth.mat
 disp('Saving rawSignal.mat ...');
@@ -153,9 +209,9 @@ pwelch(lfp{1}, [], [], [], 1000)
 
 %% Merge signal with depth data
 for i = 1 : 6
-    disp(['Start generating rawRecording{' num2str(i) '} ...']);
+    disp(['Generating rawRecording{' num2str(i) '} ...']);
     rawRecording{i} = mergeSgnlDpth('rawSignal', rawSignal{i}, depth{i});
-    disp(['Start generating lfpRecording{' num2str(i) '} ...']);
+    disp(['Generating lfpRecording{' num2str(i) '} ...']);
     lfpRecording{i} = mergeSgnlDpth('lfp', lfp{i}, depth{i});
 end
 
@@ -383,12 +439,30 @@ end
 
 
 %% Generate Activity Maps
+
+% create a matrix to load all STN entries and exits
+STNBounds = zeros(6, 2);
+STNBounds(1, :) = [2.15, -2.52];
+STNBounds(2, :) = [5.94, 1.73];
+STNBounds(3, :) = [4.30, 0.62];
+STNBounds(4, :) = [1.30, 0.20];
+STNBounds(5, :) = [2.50, -2.3];
+STNBounds(6, :) = [4.40, 0.34];
+
+location = ["2010-11-30\STN Left\Pass 1", ...
+            "2010-11-30\STN Right\Pass 1", ...
+            "2010-11-30\STN Right\Pass 2", ...
+            "2010-12-07\STN Left\Pass 2", ...
+            "2010-12-07\STN Left\Pass 3", ...
+            "2010-12-07\STN Right\Pass 2"];
+
 for i = 1 : 6
     plotFeatureMaps(i, ...
         ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         ['Figures\normFeatureMap_sdf' num2str(i) '.jpg'], ...
-        ['Figures\normFeatureMap_sif' num2str(i) '.jpg']);
+        ['Figures\normFeatureMap_sif' num2str(i) '.jpg'], ...
+        location, STNBounds(i, 1), STNBounds(i, 2));
 end
 
 
