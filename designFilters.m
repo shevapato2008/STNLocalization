@@ -1,3 +1,7 @@
+%% Set current folder
+cd('S:\Google Drive\Rutgers University\Research\DBS\Project\Matlab\Program')
+
+%{
 %% Design anti-aliasing filter
 AAFilt_3000_3200 = designfilt('lowpassfir', ...
     'PassbandFrequency', 3000, ...
@@ -7,8 +11,9 @@ AAFilt_3000_3200 = designfilt('lowpassfir', ...
     'DesignMethod', 'equiripple', ...
     'SampleRate', 48000);
 fvtool(AAFilt_3000_3200)
-saveas(gcf, 'S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\AAFilt_3000_3200.png')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\AAFilt_3000_3200.mat', 'AAFilt_3000_3200')
+saveas(gcf, 'Filters\AAFilt_3000_3200.png')
+save('Filters\AAFilt_3000_3200.mat', 'AAFilt_3000_3200')
+%}
 
 
 %% Design low-pass filters
@@ -20,8 +25,8 @@ LPFilt_110_119_6kHz = designfilt('lowpassfir', ...
     'DesignMethod', 'equiripple', ...
     'SampleRate', 6000);
 fvtool(LPFilt_110_119_6kHz)
-saveas(gcf, 'S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\LPFilt_110_119_6kHz.png')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\LPFilt_110_119_6kHz.mat', 'LPFilt_110_119_6kHz')
+saveas(gcf, 'Filters\LPFilt_110_119_6kHz.png')
+save('Filters\LPFilt_110_119_6kHz.mat', 'LPFilt_110_119_6kHz')
 
 LPFilt_110_119_48kz = designfilt('lowpassfir', ...
     'PassbandFrequency', 110, ...       % was 185 before
@@ -31,8 +36,8 @@ LPFilt_110_119_48kz = designfilt('lowpassfir', ...
     'DesignMethod', 'equiripple', ...
     'SampleRate', 48000);
 fvtool(LPFilt_110_119_48kHz)
-saveas(gcf, 'S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\LPFilt_110_119_48kHz.png')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\LPFilt_110_119_48kHz.mat', 'LPFilt_110_119_48kHz')
+saveas(gcf, 'Filters\LPFilt_110_119_48kHz.png')
+save('Filters\LPFilt_110_119_48kHz.mat', 'LPFilt_110_119_48kHz')
 
 
 LPFilt_50_59 = designfilt('lowpassfir', ...
@@ -43,8 +48,8 @@ LPFilt_50_59 = designfilt('lowpassfir', ...
     'DesignMethod', 'equiripple', ...
     'SampleRate', 6000);
 fvtool(LPFilt_50_59)
-saveas(gcf, 'S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\LPFilt_50_59.png')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\LPFilt_50_59.mat', 'LPFilt_50_59')
+saveas(gcf, 'Filters\LPFilt_50_59.png')
+save('Filters\LPFilt_50_59.mat', 'LPFilt_50_59')
 
 
 %% Design high-pass filters
@@ -56,8 +61,8 @@ HPFilt_385_400 = designfilt('highpassfir', ...
     'DesignMethod', 'equiripple', ...
     'SampleRate', 6000);
 fvtool(HPFilt_385_400)
-saveas(gcf, 'S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\HPFilt_385_400.png')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\HPFilt_385_400.mat', 'HPFilt_385_400')
+saveas(gcf, 'Filters\HPFilt_385_400.png')
+save('Filters\HPFilt_385_400.mat', 'HPFilt_385_400')
 
 % Designed for filtering out 300-3000 Hz signal
 % According to R. Q. Quiroga's 2015 paper on spike filtering
@@ -69,8 +74,8 @@ HPFilt_300_3000 = designfilt('highpassfir', ...
     'DesignMethod', 'equiripple', ...
     'SampleRate', 48000);
 fvtool(HPFilt_300_3000)
-saveas(gcf, 'S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\HPFilt_300_3000.png')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\HPFilt_300_3000.mat', 'HPFilt_300_3000')
+saveas(gcf, 'Filters\HPFilt_300_3000.png')
+save('Filters\HPFilt_300_3000.mat', 'HPFilt_300_3000')
 
 
 
@@ -87,7 +92,8 @@ highGammaFilter = designfilt('bandpassfir', ...
                     'DesignMethod', 'equiripple');
 fvtool(highGammaFilter)
 title('High Gamma Filter')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\highGammaFilter.mat', 'highGammaFilter')
+saveas(gcf, 'Filters\highGammaFilter.png')
+save('Filters\highGammaFilter.mat', 'highGammaFilter')
 
 load('Filters\highGammaFilter.mat');
 fvtool(highGammaFilter)
@@ -105,7 +111,8 @@ lowGammaFilter = designfilt('bandpassfir', ...
                     'DesignMethod', 'equiripple');
 fvtool(lowGammaFilter)
 title('Low Gamma Filter')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\lowGammaFilter.mat', 'lowGammaFilter')
+saveas(gcf, 'Filters\lowGammaFilter.png')
+save('Filters\lowGammaFilter.mat', 'lowGammaFilter')
 
 load('Filters\lowGammaFilter.mat');
 fvtool(lowGammaFilter)
@@ -123,7 +130,8 @@ alphaFilter = designfilt('bandpassfir', ...
                     'DesignMethod', 'equiripple');
 fvtool(alphaFilter)
 title('Alpha Filter')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\alphaFilter.mat', 'alphaFilter')
+saveas(gcf, 'Filters\alphaFilter.png')
+save('Filters\alphaFilter.mat', 'alphaFilter')
 
 load('Filters\alphaFilter.mat');
 fvtool(alphaFilter)
@@ -141,7 +149,8 @@ betaFilter = designfilt('bandpassfir', ...
                     'DesignMethod', 'equiripple');
 fvtool(betaFilter)
 title('Beta Filter')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\betaFilter.mat', 'betaFilter')
+saveas(gcf, 'Filters\betaFilter.png')
+save('Filters\betaFilter.mat', 'betaFilter')
 
 load('Filters\betaFilter.mat');
 fvtool(betaFilter)
@@ -159,7 +168,8 @@ thetaFilter = designfilt('bandpassfir', ...
                     'DesignMethod', 'equiripple');
 fvtool(thetaFilter)
 title('Theta Filter')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\thetaFilter.mat', 'thetaFilter')
+saveas(gcf, 'Filters\thetaFilter.png')
+save('Filters\thetaFilter.mat', 'thetaFilter')
 
 load('Filters\thetaFilter.mat');
 fvtool(thetaFilter)
@@ -177,7 +187,8 @@ deltaFilter = designfilt('bandpassfir', ...
                     'DesignMethod', 'equiripple');
 fvtool(deltaFilter)
 title('Delta Filter')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\deltaFilter.mat', 'deltaFilter')
+saveas(gcf, 'Filters\deltaFilter.png')
+save('Filters\deltaFilter.mat', 'deltaFilter')
 
 load('Filters\deltaFilter.mat');
 fvtool(deltaFilter)
@@ -194,7 +205,8 @@ infraSlowFilter = designfilt('lowpassfir', ...
                     'DesignMethod', 'equiripple');
 fvtool(infraSlowFilter)
 title('Infra Slow Filter')
-save('S:\Google Drive (edu)\Rutgers University\Research\DBS\Project\Matlab\Code\Filters\infraSlowFilter.mat', 'infraSlowFilter')
+saveas(gcf, 'Filters\infraSlowFilter.png')
+save('Filters\infraSlowFilter.mat', 'infraSlowFilter')
 
 load('Filters\infraSlowFilter.mat');
 fvtool(infraSlowFilter)
