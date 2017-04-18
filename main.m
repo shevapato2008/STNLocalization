@@ -221,12 +221,6 @@ save('Data\Raw\rawRecording.mat', 'rawRecording', '-v7.3');
 disp('Saving lfpRecording.mat ...');
 save('Data\Raw\lfpRecording.mat', 'lfpRecording', '-v7.3');
 
-% load rawRecording.mat and lfpRecording.mat
-disp('Loading rawRecording.mat ...');
-load('Data\Raw\rawRecording.mat');
-disp('Loading lfpRecording.mat ...');
-load('Data\Raw\lfpRecording.mat');
-
 
 
 %% Generate filtered data
@@ -238,9 +232,15 @@ for i = 1 : 6
 end
 
 % Apply the filters
+% load rawRecording.mat and lfpRecording.mat
+disp('Loading rawRecording.mat ...');
+load('Data\Raw\rawRecording.mat');
+disp('Loading lfpRecording.mat ...');
+load('Data\Raw\lfpRecording.mat');
+
 for i = 1 : 6
     disp(['Generating filtered signals for recordings ' num2str(i) ' ...']);
-    applyFilters(rawSignal{i}, lfp{i}, ...
+    applyFilters(rawRecording{i}(:, 2), lfpRecording{i}(:, 2), ...
         ['Data\Filtered\hpfSignal' num2str(i) '.mat'], ...
         ['Data\Filtered\highGammaSignal' num2str(i) '.mat'], ...
         ['Data\Filtered\lowGammaSignal' num2str(i) '.mat'], ...
@@ -252,7 +252,7 @@ for i = 1 : 6
 end
 
 load('Filtered\hpfSignal1.mat');
-pwelch(rawSignal{1}, [], [], [], 48000)
+pwelch(rawRecording{1}(:, 2), [], [], [], 48000)
 pwelch(hpfSignal, [], [], [], 48000)
 
 load('Filtered\highGammaSignal1.mat');
