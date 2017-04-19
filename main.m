@@ -252,6 +252,7 @@ for i = 1 : 6
 end
 
 load('Filtered\hpfSignal1.mat');
+figure
 pwelch(rawRecording{1}(:, 2), [], [], [], 48000)
 pwelch(hpfSignal, [], [], [], 48000)
 
