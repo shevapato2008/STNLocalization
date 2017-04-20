@@ -22,9 +22,10 @@ end
 % (1) Curve length %
 % Source: S. Wong et al. 2009 J Neural Eng
 function output = curv_len(vec)
-    % vec: data epoch vector of length N 
+    % vec: data epoch vector of length N
+    output = 0;
     for i = 2 : length(vec)
-        output = abs(vec(i) - vec(i - 1));
+        output = output + abs(vec(i) - vec(i - 1));
     end
 end
 % h = spikeIndepFeatures
