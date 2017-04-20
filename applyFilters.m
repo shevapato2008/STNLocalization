@@ -1,15 +1,18 @@
 function applyFilters(rawSignal, lfp, ...
-    hpfSignalPath, highGammaSignalPath, lowGammaSignalPath, ...
-    alphaSignalPath, betaSignalPath, thetaSignalPath, ...
-    deltaSignalPath, infraSlowSignalPath)
+    hpfSignalPath1, hpfSignalPath2, highGammaSignalPath, ...
+    lowGammaSignalPath, alphaSignalPath, betaSignalPath, ...
+    thetaSignalPath, deltaSignalPath, infraSlowSignalPath)
 
 %% Load filters
 % (1) High-pass filter for Spikes - 48 kHz filter
-disp('    loading high-pass filter...');
+disp('    loading high-pass filters...');
 load('Filters\HPFilt_300_3000.mat');
     % fvtool(filter.HPFilt_300_3000)      % choose 300-3000 Hz: according to 
     % title('High-pass filter 300-3000')  % R. Q. Quiroga's 2015 paper.
-    
+load('Filters\HPFilt_300.mat');
+    % fvtool(HPFilt_300)
+    % title('High Pass Filter (> 300 Hz)')
+
 % (2) Band-pass filters for the given LFP - 1 kHz filters
 disp('    loading band-pass filters...');
 % (2.1) high gamma filter 50Hz - 90Hz
@@ -42,10 +45,16 @@ load('Filters\infraSlowFilter.mat');
     % title('Infra Slow Filter')
 
 %% Apply filters
-% (1) High-pass filter for Spikes - 48 kHz filter
+% (1) High-pass filters for Spikes - 48 kHz
+% (1.1) high-pass filter 300 - 3000 Hz
 disp('    Generating and saving high-pass filtered signal...');
 hpfSignal = filtfilt(HPFilt_300_3000, rawSignal);
-save(hpfSignalPath, varname(hpfSignal));
+save(hpfSignalPath1, varname(hpfSignal));
+
+% (1.2) high-pass filter over 300 Hz
+disp('    Generating and saving high-pass filtered signal...');
+hpfSignal = filtfilt(HPFilt_300, rawSignal);
+save(hpfSignalPath2, varname(hpfSignal));
 
 % (2) Band-pass filters for the given LFP - 1 kHz filters
 disp('    Generating and saving band-pass filtered signals...');
