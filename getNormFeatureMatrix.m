@@ -2,17 +2,36 @@ function [ output_args ] = ...
     getNormFeatureMatrix(index, featureMatrixPath, normFeatureMatrixPath)
 % Function getNormFeatureMatrix helps generate normalized feature matrices.
 
-load(featureMatrixPath);
+featureMatrix = importdata(featureMatrixPath);
+
 numRow = size(featureMatrix, 1);
 numCol = size(featureMatrix, 2);
+
+% Standardization
+stdFeatureMatrix = zeros(numRow, numCol);
+for col = 1 : numCol
+    % nanstd calculates standard deviation ignoring the NaN values
+    STD = nanstd(featureMatrix(:, col));
+    % nanmedian calculates median ignoring the NaN values
+    MEDIAN = nanmedian(featureMatrix(:, col));
+    for row = 1 : numRow
+        stdFeatureMatrix(row, col) ...
+            = (featureMatrix(row, col) - MEDIAN) / STD;
+%         if abs(stdFeatureMatrix(row, col)) > 4
+%             stdFeatureMatrix(row, col) = MEDIAN;
+%         end
+    end
+end
+
+% Normalization
 normFeatureMatrix = zeros(numRow, numCol);
 
 for col = 1 : numCol
-    MIN = min(featureMatrix(:, col));
-    MAX = max(featureMatrix(:, col));
+    MIN = min(stdFeatureMatrix(:, col));
+    MAX = max(stdFeatureMatrix(:, col));
     for row = 1 : numRow
         normFeatureMatrix(row, col) ...
-            = (featureMatrix(row, col) - MIN) / (MAX - MIN);
+            = (stdFeatureMatrix(row, col) - MIN) / (MAX - MIN);
     end
 end
 
