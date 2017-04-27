@@ -288,11 +288,11 @@ for i = 1 : 6
     save(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat'], ...
         'hpfSignalEpoch', '-v7.3');
 
-    temp = load(['Data\Filtered\lfp' num2str(i) '.mat']);
-    disp(['    Generating lfpEpoch' num2str(i) '...']);
-    lfpEpoch = getEpochMatrix(temp.lfp, 4, 1000);
-    disp(['    Saving lfpEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\lfp' num2str(i) 'Epoch.mat'], 'lfpEpoch', '-v7.3');
+
+    disp(['    Generating rawSignalEpoch' num2str(i) '...']);
+    rawSignalEpoch = getEpochMatrix(rawRecording{1}(:, 2), 4, 48000);
+    disp(['    Saving rawSignal' num2str(i) 'Epoch.mat...']);
+    save(['Data\Epoch\rawSignal' num2str(i) 'Epoch.mat'], 'rawSignalEpoch', '-v7.3');
     
     temp = load(['Data\Filtered\alphaSignal' num2str(i) '.mat']);
     disp(['    Generating alphaSignalEpoch' num2str(i) '...']);
@@ -362,7 +362,6 @@ end
 for i = 1 : 6
     getFeatureMatrix(i, 13, ...
         ['Data\Epoch\300-3000\hpfSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\lfp' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\deltaSignal' num2str(i) 'Epoch.mat'], ...
@@ -376,7 +375,6 @@ end
 for i = 1 : 6
     getFeatureMatrix(i, 13, ...
         ['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\lfp' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\deltaSignal' num2str(i) 'Epoch.mat'], ...
@@ -457,7 +455,7 @@ end
 
 
 
-%% Normalization
+%% Standardization & Normalization
 
 for i = 1 : 6
     getNormFeatureMatrix(i, ...
@@ -469,6 +467,58 @@ for i = 1 : 6
     getNormFeatureMatrix(i, ...
         ['Data\Feature\O300\featureMatrix' num2str(i) '.mat'], ...
         ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat']);
+end
+
+
+
+%% Scatter plot
+load('Data\Feature\O300\normFeatureMatrix1.mat');
+plotmatrix(normFeatureMatrix)
+data_labels = {'MISI', 'SISI', 'CVISI', 'PS', 'BR', 'PB', 'FR', ...
+               'CL', 'Thrhld', 'Peaks', 'RMSA', 'ANE', 'ZC'};
+% generate the plot
+[H, AX] = plotmatrix(normFeatureMatrix);
+
+% label the plots
+for i = 1 : length(AX)
+    ylabel(AX(i, 1), data_labels{i});
+    xlabel(AX(end, i), data_labels{i});
+end
+
+
+
+%% Take transformations to make variables follow normal distribution
+nrow = size(normFeatureMatrix, 1);
+ncol = size(normFeatureMatrix, 2);
+for i = 1 : nrow
+    normFeatureMatrix(i, 1) = sqrt(normFeatureMatrix(i, 1));    % MISI
+    normFeatureMatrix(i, 2) = sqrt(normFeatureMatrix(i, 2));    % SISI
+    normFeatureMatrix(i, 3) = sqrt(normFeatureMatrix(i, 3));    % CVISI
+    normFeatureMatrix(i, 4) = sqrt(normFeatureMatrix(i, 4));    % PS
+    normFeatureMatrix(i, 5) = sqrt(normFeatureMatrix(i, 5));    % BR
+    normFeatureMatrix(i, 7) = sqrt(normFeatureMatrix(i, 7));    % FR
+    normFeatureMatrix(i, 8) = sqrt(normFeatureMatrix(i, 8));    % CL
+    normFeatureMatrix(i, 9) = sqrt(normFeatureMatrix(i, 9));    % Thrhld
+    normFeatureMatrix(i, 11) = sqrt(normFeatureMatrix(i, 11));  % RMSA
+    normFeatureMatrix(i, 12) = sqrt(normFeatureMatrix(i, 12));  % ANE
+end
+
+save('Data\Feature\O300\transformNormFeatureMatrix1.mat', 'normFeatureMatrix', '-v7.3');
+
+
+
+%% Check scatter plot again
+load('Data\Feature\O300\transformNormFeatureMatrix1.mat');
+plotmatrix(normFeatureMatrix)
+data_labels = {'MISI', 'SISI', 'CVISI', 'PS', 'BR', 'PB', 'FR', ...
+               'CL', 'Thrhld', 'Peaks', 'RMSA', 'ANE', 'ZC'};
+% generate the plot
+[H, AX] = plotmatrix(normFeatureMatrix);
+
+% label the plots
+for i = 1 : length(AX)
+    ylabel(AX(i, 1), data_labels{i});
+    xlabel(AX(end, i), data_labels{i});
 end
 
 
@@ -491,18 +541,18 @@ location = ["2010-11-30\STN Left\Pass 1", ...
             "2010-12-07\STN Left\Pass 3", ...
             "2010-12-07\STN Right\Pass 2"];
 
-for i = 1 : 6
+for i = 1 : 1
     plotFeatureMaps(i, ...
-        ['Data\Feature\300-3000\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\300-3000\transformNormFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         ['Figures\300-3000\normFeatureMap_sdf' num2str(i) '.jpg'], ...
         ['Figures\300-3000\normFeatureMap_sif' num2str(i) '.jpg'], ...
         location, STNBounds(i, 1), STNBounds(i, 2));
 end
 
-for i = 1 : 6
+for i = 1 : 1
     plotFeatureMaps(i, ...
-        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         ['Figures\O300\normFeatureMap_sdf' num2str(i) '.jpg'], ...
         ['Figures\O300\normFeatureMap_sif' num2str(i) '.jpg'], ...
@@ -514,4 +564,144 @@ end
 
 
 
+%% Covariance and Correlation Matrices
+CovMat = cov(normFeatureMatrix);
+CorrMat= corrcoef(normFeatureMatrix);
+VIF = vif(normFeatureMatrix);
 
+
+
+%% K-means clustering
+%{
+
+idx = kmeans(X, k)
+idx = kmeans(X, k, Name, Value)
+[idx, C] = kmeans(___)
+[idx, C, sumd] = kmeans(___)
+[idx, C, sumd, D] = kmeans(___)
+
+Input Arguments:
+(1) X — Data
+    numeric matrix
+(2) k — Number of clusters
+    positive integer
+(3) Name-Value Pair Arguments
+    Specify optional comma-separated pairs of Name,Value arguments. Name
+    is the argument name and Value is the corresponding value. Name must
+    appear inside single quotes (' '). You can specify several name and
+    value pair arguments in any order as Name1, Value1, ..., NameN, ValueN.
+
+    Example:
+    'Distance', 'cosine', 'Replicates', 10, 'Options',
+    statset('UseParallel',1) specifies the cosine distance,
+    10 replicate clusters at different starting values,
+    and to use parallel computing.
+
+Output Arguments:
+(1) idx — Cluster indices
+    numeric column vector
+    idx has as many rows as X, and each row indicates the cluster
+    assignment of the corresponding observation.
+(2) C — Cluster centroid locations
+    numeric matrix
+    C is a k-by-p matrix, where row j is the centroid of cluster j.
+(3) sumd — Within-cluster sums of point-to-centroid distances
+    numeric column vector
+    sumd is a k-by-1 vector, where element j is the sum of
+    point-to-centroid distances within cluster j.
+(4) D — Distances from each point to every centroid
+    numeric matrix
+    D is an n-by-k matrix, where element (j, m) is the distance
+    from observation j to centroid m.
+
+%}
+
+load('Data\Feature\O300\transformNormFeatureMatrix1.mat');
+X = normFeatureMatrix;
+k = 4;
+[idx, C, sumd, D] = kmeans(normFeatureMatrix, k);
+
+% percent of spikes vs. curve length
+figure;
+plot(X(idx == 1, 4), X(idx == 1, 8), 'r.', 'MarkerSize', 12)
+hold on
+plot(X(idx == 2, 4), X(idx == 2, 8), 'b.', 'MarkerSize', 12)
+plot(X(idx == 3, 4), X(idx == 3, 8), 'c.', 'MarkerSize', 12)
+plot(X(idx == 4, 4), X(idx == 4, 8), 'g.', 'MarkerSize', 12)
+plot(C(:, 4), C(:, 8), 'kx', 'MarkerSize', 15, 'LineWidth', 3)
+legend('Cluster 1', 'Cluster 2', 'Cluster 3', 'Cluster 4', ...
+    'Centroids', 'Location', 'NE')
+title 'Cluster Assignments and Centroids'
+hold off
+
+% Color Coded Maps
+% (1) transform the original distance to inverse of square root of it
+%     so that the closer a data point was to a particular centroid, the
+%     more of that centroid's color it attained.
+nrow = size(D, 1);
+ncol = size(D, 2);
+D_new = zeros(nrow, ncol);
+for i = 1 : nrow
+    for j = 1 : 4
+        D_new(i, j) = 1 / sqrt(D(i, j));
+    end
+end
+
+% (2) normalize each stack to 1
+D_norm = zeros(nrow, ncol);
+for i = 1 : nrow
+    sum = 0;
+    for j = 1 : 4
+        sum = sum + D_new(i, j);
+    end
+    for j = 1 : 4
+        D_norm(i, j) = D_new(i, j) / sum;
+    end
+end
+
+% (3) stacked bar plot
+Color = [0 1 1; 0 0 1; 1 0 0; 1 1 0];
+b = bar(D_norm, 'stacked');
+b(1).FaceColor = 'cyan';
+b(2).FaceColor = 'blue';
+b(3).FaceColor = 'red';
+b(4).FaceColor = 'yellow';
+
+b = bar(D_norm, 'stacked');
+b(1).FaceColor = Color(1, :);
+b(2).FaceColor = Color(2, :);
+b(3).FaceColor = Color(3, :);
+b(4).FaceColor = Color(4, :);
+
+
+
+
+
+
+for i = 1 : length(idx)
+    idx1(2*i-1) = idx(i);
+    idx1(2*i) = idx(i);
+end
+
+timeInterval = 2;       % 4 seconds for each epoch with 50% overlap
+                        % this means 2 seconds on average
+timeScale = size(normFeatureMatrix, 1) * timeInterval;
+time = 2 : timeInterval : timeScale;
+
+load('Data\Epoch\depth1Epoch.mat');
+depthMean = mean(transpose(depthEpoch));
+% STNENTRY = 1.15;
+% STNEXIT = -2.96;
+STNENTRY = 2.15;
+STNEXIT = -2.52;
+for i = 2 : length(depthMean)
+    if depthMean(i - 1) > STNENTRY && depthMean(i) <= STNENTRY
+        x1 = timeInterval * i;
+    end
+    if depthMean(i - 1) > STNEXIT && depthMean(i) <= STNEXIT
+        x2 = timeInterval * i;
+    end
+end
+
+bar(idx1, 'cyan');
+addPatch(x1, x2, 0, 4);     % add a patch
