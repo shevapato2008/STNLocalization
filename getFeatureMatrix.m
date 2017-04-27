@@ -1,5 +1,5 @@
 function [ output_args ] = getFeatureMatrix(index, numFeatures, ...
-    hpfSignalEpochPath, lfpEpochPath, alphaSignalEpochPath, ...
+    hpfSignalEpochPath, alphaSignalEpochPath, ...
     betaSignalEpochPath, deltaSignalEpochPath, ...
     infraSlowSignalEpochPath, thetaSignalEpochPath, ...
     lowGammaSignalEpochPath, highGammaSignalEpochPath, ...
@@ -52,9 +52,6 @@ end
 disp('Creating spike independent features...')
 
 % load filtered signals
-load(lfpEpochPath);                             % lfp signal
-numEpoch = size(lfpEpoch, 1);
-
 load(alphaSignalEpochPath);         % alpha signal 9Hz - 11Hz
 load(betaSignalEpochPath);          % beta signal 13Hz - 30Hz
 load(deltaSignalEpochPath);         % delta signal 1Hz - 4Hz
@@ -64,22 +61,22 @@ load(lowGammaSignalEpochPath);      % low gamma signal 30Hz - 50Hz
 load(highGammaSignalEpochPath);     % high gamma signal 50Hz - 90Hz
 
 % Load function handle of spike dependent features
-sdf = spikeIndepFeatures;
+sif = spikeIndepFeatures;
 
 for i = 1 : numEpoch
     
     % (2.1) Curve length
-    featureMatrix(i, 8) = sdf.curv_len(lfpEpoch(i, :));
+    featureMatrix(i, 8) = sif.curv_len(hpfSignalEpoch(i, :));
     % (2.2) Threshold
-    featureMatrix(i, 9) = sdf.thrshld(lfpEpoch(i, :));
+    featureMatrix(i, 9) = sif.thrshld(hpfSignalEpoch(i, :));
     % (2.3) Peaks
-    featureMatrix(i, 10) = sdf.peaks(lfpEpoch(i, :));
+    featureMatrix(i, 10) = sif.peaks(hpfSignalEpoch(i, :));
     % (2.4) Root mean square amplitude
-    featureMatrix(i, 11) = sdf.rmsa(lfpEpoch(i, :));
+    featureMatrix(i, 11) = sif.rmsa(hpfSignalEpoch(i, :));
     % (2.5) Average nonlinear energy
-    featureMatrix(i, 12) = sdf.avg_nonlnr_energy(lfpEpoch(i, :));
+    featureMatrix(i, 12) = sif.avg_nonlnr_energy(hpfSignalEpoch(i, :));
     % (2.6) Zero crossings
-    featureMatrix(i, 13) = sdf.zero_crossing(lfpEpoch(i, :));
+    featureMatrix(i, 13) = sif.zero_crossing(hpfSignalEpoch(i, :));
     
 end
 
