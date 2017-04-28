@@ -12,7 +12,7 @@ ncol = size(normFeatureMatrix, 2);
 
 for j = 1 : nfeature
     for i = 1 : nrow
-        normFeatureMatrix(i, featureList(j)) = sqrt(normFeatureMatrix(i, j));
+        normFeatureMatrix(i, featureList(j)) = sqrt(normFeatureMatrix(i, featureList(j)));
     end
 end
 
