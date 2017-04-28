@@ -1,8 +1,8 @@
-function [ output_args ] = kMeansClustering(featureMatrixPath, ...
-    clusterPlotPath, feature1, feature2)
+function [idx, C, sumd, D] = kMeansClustering(featureMatrixPath, ...
+    clusteringPath, feature1, feature2)
 % Function kMeansClustering() conducts k-means clustering on data and
 % make a clustering plot in a specific 2D angle.
-% k = 4 in this case
+% k = 4 in this case. This is fixed at this stage.
 
 X = importdata(featureMatrixPath);
 
@@ -22,7 +22,8 @@ legend('Cluster 1', 'Cluster 2', 'Cluster 3', 'Cluster 4', ...
 title 'Cluster Assignments and Centroids'
 hold off
 
-saveFigure(gcf, clusterPlotPath)
+saveFigure(gcf, clusteringPath);
+close all;
 
 end
 
