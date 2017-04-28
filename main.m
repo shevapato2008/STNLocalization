@@ -471,54 +471,45 @@ end
 
 
 
-%% Scatter plot
-load('Data\Feature\O300\normFeatureMatrix1.mat');
-plotmatrix(normFeatureMatrix)
-data_labels = {'MISI', 'SISI', 'CVISI', 'PS', 'BR', 'PB', 'FR', ...
-               'CL', 'Thrhld', 'Peaks', 'RMSA', 'ANE', 'ZC'};
-% generate the plot
-[H, AX] = plotmatrix(normFeatureMatrix);
+%% Scatter plot before transformation
+for i = 1 : 6
+featureScatterplot( ...
+    ['Pairwise Feature Scatter Plots before Transformation ' num2str(i)], ...
+    ['Data\Feature\O300\featureMatrix' num2str(i) '.mat'], ...
+    ['Figures\O300\Scatterplot\' num2str(i) 'orig.jpg']);
+end
 
-% label the plots
-for i = 1 : length(AX)
-    ylabel(AX(i, 1), data_labels{i});
-    xlabel(AX(end, i), data_labels{i});
+for i = 1 : 6
+featureScatterplot( ...
+    ['Pairwise Scatter Plots of Normalized Feature Matrix before Transformation ' num2str(i)], ...
+    ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
+    ['Figures\O300\Scatterplot\' num2str(i) 'norm.jpg']);
 end
 
 
 
 %% Take transformations to make variables follow normal distribution
-nrow = size(normFeatureMatrix, 1);
-ncol = size(normFeatureMatrix, 2);
-for i = 1 : nrow
-    normFeatureMatrix(i, 1) = sqrt(normFeatureMatrix(i, 1));    % MISI
-    normFeatureMatrix(i, 2) = sqrt(normFeatureMatrix(i, 2));    % SISI
-    normFeatureMatrix(i, 3) = sqrt(normFeatureMatrix(i, 3));    % CVISI
-    normFeatureMatrix(i, 4) = sqrt(normFeatureMatrix(i, 4));    % PS
-    normFeatureMatrix(i, 5) = sqrt(normFeatureMatrix(i, 5));    % BR
-    normFeatureMatrix(i, 7) = sqrt(normFeatureMatrix(i, 7));    % FR
-    normFeatureMatrix(i, 8) = sqrt(normFeatureMatrix(i, 8));    % CL
-    normFeatureMatrix(i, 9) = sqrt(normFeatureMatrix(i, 9));    % Thrhld
-    normFeatureMatrix(i, 11) = sqrt(normFeatureMatrix(i, 11));  % RMSA
-    normFeatureMatrix(i, 12) = sqrt(normFeatureMatrix(i, 12));  % ANE
+
+for i = 1 : 6
+featureList = [1, 2, 3, 4, 5, 7, 8, 9, 11, 12];
+transformFeatures(featureList, ...
+    ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
+    ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat']);
+
+transformFeatures(featureList, ...
+    ['Data\Feature\300-3000\normFeatureMatrix' num2str(i) '.mat'], ...
+    ['Data\Feature\300-3000\transformNormFeatureMatrix' num2str(i) '.mat']);
 end
 
-save('Data\Feature\O300\transformNormFeatureMatrix1.mat', 'normFeatureMatrix', '-v7.3');
 
 
+%% Scatter plot after transformation
 
-%% Check scatter plot again
-load('Data\Feature\O300\transformNormFeatureMatrix1.mat');
-plotmatrix(normFeatureMatrix)
-data_labels = {'MISI', 'SISI', 'CVISI', 'PS', 'BR', 'PB', 'FR', ...
-               'CL', 'Thrhld', 'Peaks', 'RMSA', 'ANE', 'ZC'};
-% generate the plot
-[H, AX] = plotmatrix(normFeatureMatrix);
-
-% label the plots
-for i = 1 : length(AX)
-    ylabel(AX(i, 1), data_labels{i});
-    xlabel(AX(end, i), data_labels{i});
+for i = 1 : 6
+featureScatterplot( ...
+    ['Pairwise Scatter Plots of Normalized Feature Matrix before Transformation ' num2str(i)], ...
+    ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
+    ['Figures\O300\Scatterplot\' num2str(i) 'trans.jpg']);
 end
 
 
@@ -541,7 +532,7 @@ location = ["2010-11-30\STN Left\Pass 1", ...
             "2010-12-07\STN Left\Pass 3", ...
             "2010-12-07\STN Right\Pass 2"];
 
-for i = 1 : 1
+for i = 1 : 6
     plotFeatureMaps(i, ...
         ['Data\Feature\300-3000\transformNormFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
@@ -550,7 +541,7 @@ for i = 1 : 1
         location, STNBounds(i, 1), STNBounds(i, 2));
 end
 
-for i = 1 : 1
+for i = 1 : 6
     plotFeatureMaps(i, ...
         ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
@@ -558,9 +549,6 @@ for i = 1 : 1
         ['Figures\O300\normFeatureMap_sif' num2str(i) '.jpg'], ...
         location, STNBounds(i, 1), STNBounds(i, 2));
 end
-
-
-
 
 
 
@@ -616,23 +604,22 @@ Output Arguments:
 
 %}
 
-load('Data\Feature\O300\transformNormFeatureMatrix1.mat');
-X = normFeatureMatrix;
-k = 4;
-[idx, C, sumd, D] = kmeans(normFeatureMatrix, k);
+for i = 1 : 6
+    [idx, C, sumd, D] = kMeansClustering( ...
+        ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\O300\K-Means\k-Means' num2str(i) '.bmp'], ...
+        4, 8);
+    
+    X = importdata(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+    
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        STNBounds(i, 1), STNBounds(i, 2), 4, ...
+        ['Figures\O300\K-Means\groupSeries' num2str(i) '.bmp']);
+end
 
-% percent of spikes vs. curve length
-figure;
-plot(X(idx == 1, 4), X(idx == 1, 8), 'r.', 'MarkerSize', 12)
-hold on
-plot(X(idx == 2, 4), X(idx == 2, 8), 'b.', 'MarkerSize', 12)
-plot(X(idx == 3, 4), X(idx == 3, 8), 'c.', 'MarkerSize', 12)
-plot(X(idx == 4, 4), X(idx == 4, 8), 'g.', 'MarkerSize', 12)
-plot(C(:, 4), C(:, 8), 'kx', 'MarkerSize', 15, 'LineWidth', 3)
-legend('Cluster 1', 'Cluster 2', 'Cluster 3', 'Cluster 4', ...
-    'Centroids', 'Location', 'NE')
-title 'Cluster Assignments and Centroids'
-hold off
+
 
 % Color Coded Maps
 % (1) transform the original distance to inverse of square root of it
@@ -685,15 +672,14 @@ end
 
 timeInterval = 2;       % 4 seconds for each epoch with 50% overlap
                         % this means 2 seconds on average
-timeScale = size(normFeatureMatrix, 1) * timeInterval;
+timeScale = size(X, 1) * timeInterval;
 time = 2 : timeInterval : timeScale;
 
 load('Data\Epoch\depth1Epoch.mat');
 depthMean = mean(transpose(depthEpoch));
-% STNENTRY = 1.15;
-% STNEXIT = -2.96;
-STNENTRY = 2.15;
-STNEXIT = -2.52;
+
+STNENTRY = STNBounds(1, 1);
+STNEXIT = STNBounds(1, 2);
 for i = 2 : length(depthMean)
     if depthMean(i - 1) > STNENTRY && depthMean(i) <= STNENTRY
         x1 = timeInterval * i;
