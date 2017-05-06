@@ -2,7 +2,10 @@
 cd('S:\Google Drive\Rutgers University\Research\DBS\Project\Matlab\Program')
 
 
-%% Load raw signal, LFP signal, and depth data %%
+
+%% 1. Data Preprocessing
+
+%% 1.1 Load raw signal, LFP signal, and depth data %%
 
 % 2010-11-30
 
@@ -207,7 +210,7 @@ pwelch(lfp{1}, [], [], [], 1000)
 
 
 
-%% Merge signal with depth data
+%% 1.2 Merge signal with depth data
 for i = 1 : 6
     disp(['Generating rawRecording{' num2str(i) '} ...']);
     rawRecording{i} = mergeSgnlDpth('rawSignal', rawSignal{i}, depth{i});
@@ -223,7 +226,7 @@ save('Data\Raw\lfpRecording.mat', 'lfpRecording', '-v7.3');
 
 
 
-%% Generate filtered data
+%% 1.3 Generate filtered data
 % save local field potential (lfp) data to filtered folder
 temp = load('Data\Raw\lfp.mat');
 for i = 1 : 6
@@ -267,7 +270,7 @@ pwelch(highGammaSignal, [], [], [], 1000)
 
 
 
-%% Convert 1D input signal to a matrix of epochs with 50% overlapping as rows
+%% 1.4 Convert 1D input signal to a matrix of epochs with 50% overlapping as rows
 % divide into epochs of 4 seconds
 % (1) get signal epoch matrices
 for i = 1 : 6
@@ -357,8 +360,9 @@ end
 
 
 
-%% Generate feature matrices
+%% 2. Feature Extraction
 
+%% 2.1 Generate feature matrices
 for i = 1 : 6
     getFeatureMatrix(i, 13, ...
         ['Data\Epoch\300-3000\hpfSignal' num2str(i) 'Epoch.mat'], ...
@@ -455,8 +459,7 @@ end
 
 
 
-%% Standardization & Normalization
-
+%% 2.2 Standardization & Normalization
 for i = 1 : 6
     getNormFeatureMatrix(i, ...
         ['Data\Feature\300-3000\featureMatrix' num2str(i) '.mat'], ...
@@ -471,7 +474,7 @@ end
 
 
 
-%% Scatter plot before transformation
+%% 2.3 Scatter plot before transformation
 for i = 1 : 6
 featureScatterplot( ...
     ['Pairwise Feature Scatter Plots before Transformation ' num2str(i)], ...
@@ -488,8 +491,7 @@ end
 
 
 
-%% Take transformations to make variables follow normal distribution
-
+%% 2.4 Take transformations to make variables follow normal distribution
 for i = 1 : 6
 featureList = [1, 2, 3, 4, 5, 7, 8, 9, 11, 12];
 transformFeatures(featureList, ...
@@ -503,8 +505,7 @@ end
 
 
 
-%% Scatter plot after transformation
-
+%% 2.5 Scatter plot after transformation
 for i = 1 : 6
 featureScatterplot( ...
     ['Pairwise Scatter Plots of Normalized Feature Matrix before Transformation ' num2str(i)], ...
@@ -514,8 +515,7 @@ end
 
 
 
-%% Generate Activity Maps
-
+%% 3. Feature Activity Maps
 % create a matrix to load all STN entries and exits
 STNBounds = zeros(6, 2);
 STNBounds(1, :) = [2.15, -2.52];
@@ -552,14 +552,9 @@ end
 
 
 
-%% Covariance and Correlation Matrices
-CovMat = cov(normFeatureMatrix);
-CorrMat= corrcoef(normFeatureMatrix);
-VIF = vif(normFeatureMatrix);
+%% 4. Clustering Algorithms
 
-
-
-%% K-means clustering
+%% 4.1 K-means clustering
 %{
 
 idx = kmeans(X, k)
@@ -623,7 +618,7 @@ end
 
 
 
-%% Hierarchical Clustering
+%% 4.2 Hierarchical Clustering
 X = importdata('Data\Feature\O300\transformNormFeatureMatrix1.mat');
 Y1 = pdist(X, 'euclidean');  % euclidean is default
 Z1 = linkage(Y1, 'average');
@@ -664,7 +659,7 @@ hold off
 
 
 
-%% DBSCAN clustering
+%% 4.3 DBSCAN clustering
 
 %{
 X = importdata('Data\Feature\O300\transformNormFeatureMatrix1.mat');
@@ -702,57 +697,5 @@ for i = 1 : 6
         ['Figures\O300\DBSCAN\groupSeries' num2str(i) '.bmp']);
     
 end
-
-
-
-
-
-
-
-
-
-
-
-%% Color Coded Maps
-%{
-% (1) transform the original distance to inverse of square root of it
-%     so that the closer a data point was to a particular centroid, the
-%     more of that centroid's color it attained.
-nrow = size(D, 1);
-ncol = size(D, 2);
-D_new = zeros(nrow, ncol);
-for i = 1 : nrow
-    for j = 1 : 4
-        D_new(i, j) = 1 / sqrt(D(i, j));
-    end
-end
-
-% (2) normalize each stack to 1
-D_norm = zeros(nrow, ncol);
-for i = 1 : nrow
-    sum = 0;
-    for j = 1 : 4
-        sum = sum + D_new(i, j);
-    end
-    for j = 1 : 4
-        D_norm(i, j) = D_new(i, j) / sum;
-    end
-end
-
-% (3) stacked bar plot
-Color = [0 1 1; 0 0 1; 1 0 0; 1 1 0];
-b = bar(D_norm, 'stacked');
-b(1).FaceColor = 'cyan';
-b(2).FaceColor = 'blue';
-b(3).FaceColor = 'red';
-b(4).FaceColor = 'yellow';
-
-b = bar(D_norm, 'stacked');
-b(1).FaceColor = Color(1, :);
-b(2).FaceColor = Color(2, :);
-b(3).FaceColor = Color(3, :);
-b(4).FaceColor = Color(4, :);
-%}
-
 
 
