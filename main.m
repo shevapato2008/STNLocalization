@@ -605,6 +605,7 @@ Output Arguments:
 %}
 
 for i = 1 : 6
+    
     [idx, C, sumd, D] = kMeansClustering( ...
         ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
         ['Figures\O300\K-Means\k-Means' num2str(i) '.bmp'], ...
@@ -617,11 +618,103 @@ for i = 1 : 6
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         STNBounds(i, 1), STNBounds(i, 2), 4, ...
         ['Figures\O300\K-Means\groupSeries' num2str(i) '.bmp']);
+    
 end
 
 
 
-% Color Coded Maps
+%% Hierarchical Clustering
+X = importdata('Data\Feature\O300\transformNormFeatureMatrix1.mat');
+Y1 = pdist(X, 'euclidean');  % euclidean is default
+Z1 = linkage(Y1, 'average');
+c1 = cophenet(Z1, Y1);       % 0.6942
+
+% use the cophenetic correlation coefficient to compare the results of
+% clustering the same data set using different distance calculation methods
+% or clustering algorithms
+
+Y2 = pdist(X, 'cityblock');
+Z2 = linkage(Y2, 'average');
+c2 = cophenet(Z2, Y2);       % 0.6545
+
+
+dendrogram(Z1);
+%{
+About dendrogram output:
+(1) If there are 30 or fewer data points in the original data set, then each
+leaf in the dendrogram corresponds to one data point.
+(2) If there are more than 30 data points, then dendrogram collapses lower 
+branches so that there are 30 leaf nodes. As a result, some leaves in the
+plot correspond to more than one data point.
+%}
+% specify 4 clusters
+idx = cluster(Z1, 'maxclust', 5);
+
+% Visualization from a 2D angle
+feature1 = 4;
+feature2 = 8;
+figure;
+plot(X(idx == 1, feature1), X(idx == 1, feature2), 'r.', 'MarkerSize', 12)
+hold on
+plot(X(idx == 2, feature1), X(idx == 2, feature2), 'b.', 'MarkerSize', 12)
+plot(X(idx == 3, feature1), X(idx == 3, feature2), 'c.', 'MarkerSize', 12)
+plot(X(idx == 4, feature1), X(idx == 4, feature2), 'g.', 'MarkerSize', 12)
+title 'Cluster Assignments and Centroids'
+hold off
+
+
+
+%% DBSCAN clustering
+
+%{
+X = importdata('Data\Feature\O300\transformNormFeatureMatrix1.mat');
+
+epsilon = 0.2;
+MinPts = 8;
+idx = DBSCAN(X, epsilon, MinPts);
+tabulate(idx)
+
+% Visualization from a 2D angle
+feature1 = 4;
+feature2 = 8;
+figure;
+plot(X(idx == 0, feature1), X(idx == 0, feature2), 'k.', 'MarkerSize', 12)
+hold on
+plot(X(idx == 1, feature1), X(idx == 1, feature2), 'r.', 'MarkerSize', 12)
+plot(X(idx == 2, feature1), X(idx == 2, feature2), 'b.', 'MarkerSize', 12)
+plot(X(idx == 3, feature1), X(idx == 3, feature2), 'c.', 'MarkerSize', 12)
+plot(X(idx == 4, feature1), X(idx == 4, feature2), 'g.', 'MarkerSize', 12)
+title 'Cluster Assignments and Centroids'
+hold off
+%}
+
+for i = 1 : 6
+    
+    idx = DBSCANClustering( ...
+        ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
+        0.2, 8);
+    
+    X = importdata(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        STNBounds(1, 1), STNBounds(1, 2), 10, ...
+        ['Figures\O300\DBSCAN\groupSeries' num2str(i) '.bmp']);
+    
+end
+
+
+
+
+
+
+
+
+
+
+
+%% Color Coded Maps
+%{
 % (1) transform the original distance to inverse of square root of it
 %     so that the closer a data point was to a particular centroid, the
 %     more of that centroid's color it attained.
@@ -659,35 +752,7 @@ b(1).FaceColor = Color(1, :);
 b(2).FaceColor = Color(2, :);
 b(3).FaceColor = Color(3, :);
 b(4).FaceColor = Color(4, :);
+%}
 
 
 
-
-
-
-for i = 1 : length(idx)
-    idx1(2*i-1) = idx(i);
-    idx1(2*i) = idx(i);
-end
-
-timeInterval = 2;       % 4 seconds for each epoch with 50% overlap
-                        % this means 2 seconds on average
-timeScale = size(X, 1) * timeInterval;
-time = 2 : timeInterval : timeScale;
-
-load('Data\Epoch\depth1Epoch.mat');
-depthMean = mean(transpose(depthEpoch));
-
-STNENTRY = STNBounds(1, 1);
-STNEXIT = STNBounds(1, 2);
-for i = 2 : length(depthMean)
-    if depthMean(i - 1) > STNENTRY && depthMean(i) <= STNENTRY
-        x1 = timeInterval * i;
-    end
-    if depthMean(i - 1) > STNEXIT && depthMean(i) <= STNEXIT
-        x2 = timeInterval * i;
-    end
-end
-
-bar(idx1, 'cyan');
-addPatch(x1, x2, 0, 4);     % add a patch
