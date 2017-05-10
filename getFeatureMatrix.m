@@ -80,6 +80,11 @@ for i = 1 : numEpoch
     
 end
 
+
+% (3) Spike independent features
+disp('Creating lfp-based features...')
+
+
 disp(['Saving featureMatrix' num2str(index) '...']);
 save(featureMatrixPath, 'featureMatrix', '-v7.3');
 

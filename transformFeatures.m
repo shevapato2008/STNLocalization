@@ -1,22 +1,22 @@
 function [ output_args ] = transformFeatures(featureList, ...
-    normFeatureMatrixPath, transformMatrixPath)
+    featureMatrixPath, transformMatrixPath)
 % Function transformFeatures() transforms the specified features by taking
 % square root.
 % featureList: an array of features to take the square root transformation
 
-load(normFeatureMatrixPath);
+X = importdata(featureMatrixPath);
 
 nfeature = length(featureList);
-nrow = size(normFeatureMatrix, 1);
-ncol = size(normFeatureMatrix, 2);
+nrow = size(X, 1);
+ncol = size(X, 2);
 
 for j = 1 : nfeature
     for i = 1 : nrow
-        normFeatureMatrix(i, featureList(j)) = sqrt(normFeatureMatrix(i, featureList(j)));
+        X(i, featureList(j)) = sqrt(X(i, featureList(j)));
     end
 end
 
-save(transformMatrixPath, 'normFeatureMatrix', '-v7.3');
+save(transformMatrixPath, 'X', '-v7.3');
 
 end
 

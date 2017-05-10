@@ -252,6 +252,7 @@ end
 
 
 % (14) Maximum coherence between signals X and Y (maxCohXY)
+% (15) Maximum coherence between X and Y in frequency band W (maxCohXYw)
 % https://en.wikipedia.org/wiki/Coherence_(signal_processing)
 % https://www.mathworks.com/help/signal/ref/mscohere.html
 function output = maxCohXY(signal1, signal2, fs)
@@ -269,10 +270,6 @@ function output = maxCohXY(signal1, signal2, fs)
     ylabel('Coherence')
     output = max(temp(:, 1));
 end
-
-
-
-% (15) Maximum coherence between X and Y in frequency band W (maxCohXYw)
 
 
 

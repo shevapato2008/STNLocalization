@@ -255,16 +255,22 @@ for i = 1 : 6
         ['Data\Filtered\infraSlowSignal' num2str(i) '.mat']);
 end
 
+% check 300-3000 filtered signal
 load('Filtered\300-3000\hpfSignal1.mat');
 figure
 pwelch(rawRecording{1}(:, 2), [], [], [], 48000)
 pwelch(hpfSignal, [], [], [], 48000)
 
+% check O300 filtered signal
 load('Filtered\O300\hpfSignal1.mat');
 figure
 pwelch(rawRecording{1}(:, 2), [], [], [], 48000)
 pwelch(hpfSignal, [], [], [], 48000)
 
+% check lfp signal
+pwelch(lfpRecording{1}(:, 2), [], [], [], 1000)
+
+% check high gamma signal
 load('Filtered\highGammaSignal1.mat');
 pwelch(highGammaSignal, [], [], [], 1000)
 
@@ -365,19 +371,6 @@ end
 %% 2.1 Generate feature matrices
 for i = 1 : 6
     getFeatureMatrix(i, 13, ...
-        ['Data\Epoch\300-3000\hpfSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\deltaSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\infraSlowSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\thetaSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\lowGammaSignal' num2str(i) 'Epoch.mat'], ...
-        ['Data\Epoch\highGammaSignal' num2str(i) 'Epoch.mat'], ...
-    	['Data\Feature\300-3000\featureMatrix' num2str(i) '.mat'])
-end
-
-for i = 1 : 6
-    getFeatureMatrix(i, 13, ...
         ['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], ...
@@ -389,92 +382,10 @@ for i = 1 : 6
     	['Data\Feature\O300\featureMatrix' num2str(i) '.mat'])
 end
 
-%{
-% (1) Spike dependent features
-% load hpfSignalEpoch
-temp = load('Data\Epoch\hpfSignal1Epoch.mat');
-hpfSignalEpoch = temp.hpfSignalEpoch;
-numEpoch = size(hpfSignalEpoch, 1);
-
-% Create empty feature matrix
-featureMatrix = zeros(numEpoch, 50);
-
-% Load function handle of spike dependent features
-sdf = spikeDepFeatures;
-
-for i = 1 : numEpoch
-    % spike detection
-    spikeLocs = spikeDetection(transpose(hpfSignalEpoch(i, :)));
-    % [spikeLocs, spikeAmpls, spikes] = spikeDetection(transpose(hpfSignalEpoch(i, :)));
-    
-    % (1.1) Mean Inter-Spike Interval (MISI)
-    featureMatrix(i, 1) = sdf.misi(spikeLocs);
-    % (1.2) Inter-Spike Interval Standard Deviation (SISI)
-    featureMatrix(i, 2) = sdf.sisi(spikeLocs);
-    % (1.3) Inter-Spike Interval Coefficient of Variation (CVISI)
-    featureMatrix(i, 3) = sdf.cvisi(spikeLocs);
-    % (1.4) Percentage of Spikes in the Spike Signal (PS)
-    featureMatrix(i, 4) = sdf.ps(spikeLocs, transpose(hpfSignalEpoch(i, :)));
-    % (1.5) Bursting Rate (BR)
-    featureMatrix(i, 5) = sdf.br(spikeLocs, transpose(hpfSignalEpoch(i, :)), 48000);
-    % (1.6) Percentage of Bursts (PB)
-    featureMatrix(i, 6) = sdf.pb(spikeLocs);
-    % (1.7) Firing Rate (FR)
-    featureMatrix(i, 7) = sdf.fr(spikeLocs, transpose(hpfSignalEpoch(i, :)), 48000);
-end
-
-% (2) Spike independent features
-% load filtered signals
-load('Data\Epoch\lfp1Epoch.mat');               % lfp signal
-numEpoch = size(lfpEpoch, 1);
-
-load('Data\Epoch\alphaSignal1Epoch.mat');       % alpha signal 9Hz - 11Hz
-load('Data\Epoch\betaSignal1Epoch.mat');        % beta signal 13Hz - 30Hz
-load('Data\Epoch\deltaSignal1Epoch.mat');       % delta signal 1Hz - 4Hz
-load('Data\Epoch\infraSlowSignal1Epoch.mat');	% infra-slow signal 1Hz - 4Hz
-load('Data\Epoch\thetaSignal1Epoch.mat');       % theta signal 4Hz - 8Hz
-load('Data\Epoch\lowGammaSignal1Epoch.mat');	% low gamma signal 30Hz - 50Hz
-load('Data\Epoch\highGammaSignal1Epoch.mat');	% high gamma signal 50Hz - 90Hz
-
-% Load function handle of spike dependent features
-sdf = spikeIndepFeatures;
-
-for i = 1 : numEpoch
-    
-    % (2.1) Curve length
-    featureMatrix(i, 8) = sdf.curv_len(lfpEpoch(i, :));
-    % (2.2) Threshold
-    featureMatrix(i, 9) = sdf.thrshld(lfpEpoch(i, :));
-    % (2.3) Peaks
-    featureMatrix(i, 10) = sdf.peaks(lfpEpoch(i, :));
-    % (2.4) Root mean square amplitude
-    featureMatrix(i, 11) = sdf.rmsa(lfpEpoch(i, :));
-    % (2.5) Average nonlinear energy
-    featureMatrix(i, 12) = sdf.avg_nonlnr_energy(lfpEpoch(i, :));
-    % (2.6) Zero crossings
-    featureMatrix(i, 13) = sdf.zero_crossing(lfpEpoch(i, :));
-    
-end
-%}
 
 
-
-%% 2.2 Standardization & Normalization
-for i = 1 : 6
-    getNormFeatureMatrix(i, ...
-        ['Data\Feature\300-3000\featureMatrix' num2str(i) '.mat'], ...
-        ['Data\Feature\300-3000\normFeatureMatrix' num2str(i) '.mat']);
-end
-
-for i = 1 : 6
-    getNormFeatureMatrix(i, ...
-        ['Data\Feature\O300\featureMatrix' num2str(i) '.mat'], ...
-        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat']);
-end
-
-
-
-%% 2.3 Scatter plot before transformation
+%% 2.2 Take transformations (sqrt) to make variables more normally distributed
+% Scatter plot before transformation
 for i = 1 : 6
 featureScatterplot( ...
     ['Pairwise Feature Scatter Plots before Transformation ' num2str(i)], ...
@@ -482,37 +393,38 @@ featureScatterplot( ...
     ['Figures\O300\Scatterplot\' num2str(i) 'orig.jpg']);
 end
 
-for i = 1 : 6
-featureScatterplot( ...
-    ['Pairwise Scatter Plots of Normalized Feature Matrix before Transformation ' num2str(i)], ...
-    ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
-    ['Figures\O300\Scatterplot\' num2str(i) 'norm.jpg']);
-end
-
-
-
-%% 2.4 Take transformations to make variables follow normal distribution
+% Transformation
 for i = 1 : 6
 featureList = [1, 2, 3, 4, 5, 7, 8, 9, 11, 12];
 transformFeatures(featureList, ...
-    ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
-    ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat']);
-
-transformFeatures(featureList, ...
-    ['Data\Feature\300-3000\normFeatureMatrix' num2str(i) '.mat'], ...
-    ['Data\Feature\300-3000\transformNormFeatureMatrix' num2str(i) '.mat']);
+    ['Data\Feature\O300\featureMatrix' num2str(i) '.mat'], ...
+    ['Data\Feature\O300\transformFeatureMatrix' num2str(i) '.mat']);
 end
 
-
-
-%% 2.5 Scatter plot after transformation
+% Scatter plot after transformation
 for i = 1 : 6
 featureScatterplot( ...
-    ['Pairwise Scatter Plots of Normalized Feature Matrix before Transformation ' num2str(i)], ...
-    ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
+    ['Pairwise Scatter Plots of Feature Matrix after Transformation ' num2str(i)], ...
+    ['Data\Feature\O300\transformFeatureMatrix' num2str(i) '.mat'], ...
     ['Figures\O300\Scatterplot\' num2str(i) 'trans.jpg']);
 end
 
+
+
+%% 2.3 Standardization, Normalization, Outlier Detection
+for i = 1 : 6
+    getNormFeatureMatrix(i, ...
+        ['Data\Feature\O300\transformFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat']);
+end
+
+% Scatter plot after normalization
+for i = 1 : 6
+featureScatterplot( ...
+    ['Pairwise Scatter Plots of Feature Matrix after Normalization ' num2str(i)], ...
+    ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
+    ['Figures\O300\Scatterplot\' num2str(i) 'norm.jpg']);
+end
 
 
 %% 3. Feature Activity Maps
@@ -534,16 +446,7 @@ location = ["2010-11-30\STN Left\Pass 1", ...
 
 for i = 1 : 6
     plotFeatureMaps(i, ...
-        ['Data\Feature\300-3000\transformNormFeatureMatrix' num2str(i) '.mat'], ...
-        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-        ['Figures\300-3000\normFeatureMap_sdf' num2str(i) '.jpg'], ...
-        ['Figures\300-3000\normFeatureMap_sif' num2str(i) '.jpg'], ...
-        location, STNBounds(i, 1), STNBounds(i, 2));
-end
-
-for i = 1 : 6
-    plotFeatureMaps(i, ...
-        ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         ['Figures\O300\normFeatureMap_sdf' num2str(i) '.jpg'], ...
         ['Figures\O300\normFeatureMap_sif' num2str(i) '.jpg'], ...
@@ -602,16 +505,16 @@ Output Arguments:
 for i = 1 : 6
     
     [idx, C, sumd, D] = kMeansClustering( ...
-        ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
         ['Figures\O300\K-Means\k-Means' num2str(i) '.bmp'], ...
-        4, 8);
+        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
     
     X = importdata(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat']);
     epochNum = size(X, 1);
     
     plotGroupSeries(epochNum, idx, ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-        STNBounds(i, 1), STNBounds(i, 2), 4, ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
         ['Figures\O300\K-Means\groupSeries' num2str(i) '.bmp']);
     
 end
@@ -686,14 +589,14 @@ hold off
 for i = 1 : 6
     
     idx = DBSCANClustering( ...
-        ['Data\Feature\O300\transformNormFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
         0.2, 8);
     
     X = importdata(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat']);
     epochNum = size(X, 1);
     plotGroupSeries(epochNum, idx, ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-        STNBounds(1, 1), STNBounds(1, 2), 10, ...
+        STNBounds(i, 1), STNBounds(i, 2), 10, ...
         ['Figures\O300\DBSCAN\groupSeries' num2str(i) '.bmp']);
     
 end
