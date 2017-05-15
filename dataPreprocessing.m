@@ -2780,232 +2780,96 @@ clear;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% [Signal 2]
-%{
-Right STN Trial 1
-Impedance checks:
-15mm:	0.34 MOhm
-ZI Entry:     N/A
-STN Entry:	  5.94
-STN Exit:     1.73
-SN Entry:	
-Implant to 1.5 above target
-%}
-
-rawSignal{2} = loadRawSignal('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp{2} = loadLFP('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth_temp = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth{2} = convertDepth(depth_temp);
-
-
-% [Signal 3]
-%{
-Right STN Trial 2 (2 mm posterior to track 1)
-Impedance checks:
-15mm:	0.31 MOhm
-ZI Entry:      N/A
-STN Entry:	   4.3
-STN Exit:     0.62
-SN Entry:      N/A
-%}
-
-rawSignal{3} = loadRawSignal('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp{3} = loadLFP('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth_temp = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth{3} = convertDepth(depth_temp);
-
-
-% 2010-12-07
-
-%{
-% Left STN Trial 1
-% Impedance checks:
-% 15mm:	0.26 MOhm
-% ZI Entry:	N/A
-% STN Entry:	N/A
-% STN Exit	N/A
-% SN Entry:	N/A
-% Cable switched during recording
-
-rawSignal5 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-rawSignal6 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-rawSignal7 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 2\WaveformData-Ch1.mat');
-lfp5 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp6 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp7 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 2\WaveformData-Ch1.mat');
-depth5 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth6 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth7 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 2\WaveformData-Ch1.mat');
-%}
-
-
-% [Signal 4]
-%{
-Left STN Trial 2 (2mm posterior to track 1)
-11mm:	0.25 MOhm
-ZI Entry:     N/A
-STN Entry:	  1.3
-STN Exit:     0.2
-SN Entry:     N/A
-Quiet track from 4.5mm to -1mm
-%}
-
-rawSignal4_part1 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-rawSignal4_part2 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-rawSignal{4} = vertcat(rawSignal4_part1, rawSignal4_part2);
-lfp4_part1 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp4_part2 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp{4} = vertcat(lfp4_part1, lfp4_part2);
-depth4_part1 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth4_part2 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-% remove the difference in time before concatenating the depth data
-diff = depth4_part2(1, 1) - depth4_part1(size(depth4_part1, 1), 1);
-depth4_part2(:, 1) = depth4_part2(:, 1) - diff + 1;
-depth_temp = vertcat(depth4_part1, depth4_part2);
-depth{4} = convertDepth(depth_temp);
-
-
-
-% [Signal 5]
-%{
-Left STN Trial 3 (2mm anterior to track 1)
-No impedance checks
-ZI Entry:      N/A
-STN Entry:	   2.5
-STN Exit:     -2.3
-SN Entry:     -2.7
-Implant to 2.3 mm below target
-%}
-
-rawSignal5_part1 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-rawSignal5_part2 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-rawSignal{5} = vertcat(rawSignal5_part1, rawSignal5_part2);
-lfp5_part1 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp5_part2 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp{5} = vertcat(lfp5_part1, lfp5_part2);
-
-% depth
-depth5_part1 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth5_part2 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-% remove the difference in time before concatenating the depth data
-diff = depth5_part2(1, 1) - depth5_part1(size(depth5_part1, 1), 1);
-depth5_part2(:, 1) = depth5_part2(:, 1) - diff + 1;
-depth_temp = vertcat(depth5_part1, depth5_part2);
-depth{5} = convertDepth(depth_temp);
-
-
-
-%{
-Right STN Trial 1
-Impedance checks:
-15mm:	0.25 MOhm
-ZI Entry:     N/A
-STN Entry:	N/A
-STN Exit:     N/A
-SN Entry:     N/A
-Electrode not clamped until 3.0mm, produces false map
-
-loadRawSignal('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-loadLFP('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-loadDepth('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-%}
-
-
-% [Signal 6]
-%{
-Right STN Trial 2 (2 mm anterior to track 1)
-15mm:	0.24 MOhm
-ZI Entry:      N/A
-STN Entry:	   4.4
-STN Exit:     0.34
-SN Entry:    -0.42
-Implant to 0.2 above target
-%}
-
-rawSignal{6} = loadRawSignal('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp{6} = loadLFP('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth_temp = loadDepth('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth{6} = convertDepth(depth_temp);
-
-
-% save rawSignal.mat, lfp.mat, and depth.mat
-disp('Saving rawSignal.mat ...');
-save('Data\Raw\rawSignal.mat', 'rawSignal', '-v7.3');
-disp('Saving lfp.mat ...');
-save('Data\Raw\lfp.mat', 'lfp', '-v7.3');
-disp('Saving depth.mat ...');
-save('Data\Raw\depth.mat', 'depth', '-v7.3');
-
-% load rawSignal.mat, lfp.mat, and depth.mat
-disp('Loading rawSignal.mat ...');
-load('Data\Raw\rawSignal.mat');
-disp('Loading lfp.mat ...');
-load('Data\Raw\lfp.mat');
-disp('Loading depth.mat ...');
-load('Data\Raw\depth.mat');
-
-pwelch(rawSignal{1}, [], [], [], 48000)
-pwelch(lfp{1}, [], [], [], 1000)
-
-
-
 %% 1.2 Merge signal with depth data
-for i = 1 : 6
-    disp(['Generating rawRecording{' num2str(i) '} ...']);
-    rawRecording{i} = mergeSgnlDpth('rawSignal', rawSignal{i}, depth{i});
-    disp(['Generating lfpRecording{' num2str(i) '} ...']);
-    lfpRecording{i} = mergeSgnlDpth('lfp', lfp{i}, depth{i});
+
+for i = 1 : 53
+
+    % load the signals and depth
+    disp(['Loading rawSignal ' num2str(i) ' ...']);
+    rawSignal = importdata(['Data\Raw\rawSignal' num2str(i) '.mat']);
+    disp(['Loading lfp ' num2str(i) ' ...']);
+    lfp = importdata(['Data\Raw\lfp' num2str(i) '.mat']);
+    disp(['Loading depth ' num2str(i) ' ...']);
+    depth = importdata(['Data\Raw\depth' num2str(i) '.mat']);
+
+    % merge them and save
+    disp(['Generating rawRecording ' num2str(i) ' ...']);
+    rawRecording = mergeSgnlDpth('rawSignal', rawSignal, depth);
+    save(['Data\Raw\rawRecording' num2str(i) '.mat'], 'rawRecording', '-v7.3');
+    disp(['Generating lfpRecording ' num2str(i) ' ...']);
+    lfpRecording = mergeSgnlDpth('lfp', lfp, depth);
+    save(['Data\Raw\lfpRecording' num2str(i) '.mat'], 'lfpRecording', '-v7.3');
+
+    % generate signal-depth merging plot to visually check merging outcome
+    disp(['Generating signal-depth merging plot ' num2str(i) '...']);
+    figure
+    ax(1) = subplot(3, 1, 1);
+    plot(depth(:, 3));
+    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on')
+    grid on
+    grid minor
+    xlabel('Time Samples')
+    ylabel('Depth Map (mm)')
+    title(['Depth Map for the Sampled Depth Data ' num2str(i)]);
+
+    ax(2) = subplot(3, 1, 2);
+    plot(rawRecording(:, 3));
+    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on')
+    grid on
+    grid minor
+    xlabel('Time (1/48000 sec)')
+    ylabel('Depth Map (mm)')
+    title(['Depth Map for the Merged Raw Recording ' num2str(i)]);
+
+    ax(3) = subplot(3, 1, 3);
+    plot(lfpRecording(:, 3));
+    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on')
+    grid on
+    grid minor
+    xlabel('Time (1/1000 sec)')
+    ylabel('Depth Map (mm)')
+    title(['Depth Map for the Merged Local Field Potential Recording ' ...
+        num2str(i)]);
+
+    % save figure as full screen
+    disp(['Saving signal-depth merging plot ' num2str(i) '...']);
+    saveFigure(gcf, ['Data\Raw\depthMergePlot' num2str(i) '.bmp']);
+
+    close all;
+
+    % finally clear all data in the memory for the next cycle
+    clear;
+
 end
 
-% save rawRecording.mat and lfpRecording.mat
-disp('Saving rawRecording.mat ...');
-save('Data\Raw\rawRecording.mat', 'rawRecording', '-v7.3');
-disp('Saving lfpRecording.mat ...');
-save('Data\Raw\lfpRecording.mat', 'lfpRecording', '-v7.3');
+% Problems:
+% (1) wrong end point: #21
+% (2) go back too much: #5 #10 #35 #46
 
 
 
 %% 1.3 Generate filtered data
+
 % save local field potential (lfp) data to filtered folder
-temp = load('Data\Raw\lfp.mat');
-for i = 1 : 6
-    lfp = temp.lfp{i};
+for i = 1 : 53
+    lfp = importdata(['Data\Raw\lfp' num2str(i) '.mat']);
     save(['Data\Filtered\lfp' num2str(i) '.mat'], varname(lfp));
+    clear;
 end
 
-% Apply the filters
-% load rawRecording.mat and lfpRecording.mat
-disp('Loading rawRecording.mat ...');
-load('Data\Raw\rawRecording.mat');
-disp('Loading lfpRecording.mat ...');
-load('Data\Raw\lfpRecording.mat');
+% Apply the filters [Caution: Time Consuming!]
+for i = 1 : 10
+    
+    % load rawRecording and lfpRecording
+    disp(['Loading rawRecording' num2str(i) '.mat ...']);
+    rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
+    disp(['Loading lfpRecording' num2str(i) '.mat ...']);
+    lfpRecording = importdata(['Data\Raw\lfpRecording' num2str(i) '.mat']);
 
-for i = 1 : 6
+    % generating filtered signals
     disp(['Generating filtered signals for recordings ' num2str(i) ' ...']);
-    applyFilters(rawRecording{i}(:, 2), lfpRecording{i}(:, 2), ...
-        ['Data\Filtered\300-3000\hpfSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\O300\hpfSignal' num2str(i) '.mat'], ...
+    applyFilters(rawRecording(:, 2), lfpRecording(:, 2), ...
+        ['Data\Filtered\hpfSignal' num2str(i) '.mat'], ...
         ['Data\Filtered\highGammaSignal' num2str(i) '.mat'], ...
         ['Data\Filtered\lowGammaSignal' num2str(i) '.mat'], ...
         ['Data\Filtered\alphaSignal' num2str(i) '.mat'], ...
@@ -3013,113 +2877,119 @@ for i = 1 : 6
         ['Data\Filtered\thetaSignal' num2str(i) '.mat'], ...
         ['Data\Filtered\deltaSignal' num2str(i) '.mat'], ...
         ['Data\Filtered\infraSlowSignal' num2str(i) '.mat']);
+    
+    % clear memory
+    clear;
+    
 end
 
-% check 300-3000 filtered signal
-load('Filtered\300-3000\hpfSignal1.mat');
-figure
-pwelch(rawRecording{1}(:, 2), [], [], [], 48000)
-pwelch(hpfSignal, [], [], [], 48000)
+% Check O300 filter efficacy
+% By comparing the frequency maps: rawSignal vs. hpfSignal
+for i = 1 : 10
+    
+    % load signals
+    rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
+    hpfSignal = importdata(['Data\Filtered\hpfSignal' num2str(i) '.mat']);
 
-% check O300 filtered signal
-load('Filtered\O300\hpfSignal1.mat');
-figure
-pwelch(rawRecording{1}(:, 2), [], [], [], 48000)
-pwelch(hpfSignal, [], [], [], 48000)
+    % draw plots
+    figure
+    ax(1) = subplot(2, 1, 1);
+    pwelch(rawRecording(:, 2), [], [], [], 48000)
+    title(['Raw Recording ' num2str(i)]);
+    ax(2) = subplot(2, 1, 2);
+    pwelch(hpfSignal, [], [], [], 48000)
+    title(['Over 300Hz High-Pass Filtered Signal ' num2str(i)]);
+    
+    % save figure as full screen
+    disp(['Saving pwelch plot ' num2str(i) '...']);
+    saveFigure(gcf, ['Data\Filtered\pwelchPlot' num2str(i) '.bmp']);
+    
+    % close the figure
+    close all;
 
-% check lfp signal
-pwelch(lfpRecording{1}(:, 2), [], [], [], 1000)
+    % clear memory
+    clear;
 
-% check high gamma signal
-load('Filtered\highGammaSignal1.mat');
-pwelch(highGammaSignal, [], [], [], 1000)
+end
+
+% % check lfp band-pass filters
+% pwelch(lfpRecording{1}(:, 2), [], [], [], 1000)
+% 
+% % check high gamma signal
+% load('Filtered\highGammaSignal1.mat');
+% pwelch(highGammaSignal, [], [], [], 1000)
 
 
 
 %% 1.4 Convert 1D input signal to a matrix of epochs with 50% overlapping as rows
 % divide into epochs of 4 seconds
+
 % (1) get signal epoch matrices
-for i = 1 : 6
+for i = 1 : 10
     
     disp(['Start group ' num2str(i) ' epoch matrices...']);
     
-    temp = load(['Data\Filtered\300-3000\hpfSignal' num2str(i) '.mat']);
+    hpfSignal = importdata(['Data\Filtered\hpfSignal' num2str(i) '.mat']);
     disp(['    Generating hpfSignalEpoch' num2str(i) '...']);
-    hpfSignalEpoch = getEpochMatrix(temp.hpfSignal, 4, 48000);
+    hpfSignalEpoch = getEpochMatrix(hpfSignal, 4, 48000);
     disp(['    Saving hpfSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\300-3000\hpfSignal' num2str(i) 'Epoch.mat'], ...
+    save(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat'], ...
         'hpfSignalEpoch', '-v7.3');
-
-    temp = load(['Data\Filtered\O300\hpfSignal' num2str(i) '.mat']);
-    disp(['    Generating hpfSignalEpoch' num2str(i) '...']);
-    hpfSignalEpoch = getEpochMatrix(temp.hpfSignal, 4, 48000);
-    disp(['    Saving hpfSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat'], ...
-        'hpfSignalEpoch', '-v7.3');
-
-
-    disp(['    Generating rawSignalEpoch' num2str(i) '...']);
-    rawSignalEpoch = getEpochMatrix(rawRecording{1}(:, 2), 4, 48000);
-    disp(['    Saving rawSignal' num2str(i) 'Epoch.mat...']);
-    save(['Data\Epoch\rawSignal' num2str(i) 'Epoch.mat'], 'rawSignalEpoch', '-v7.3');
     
-    temp = load(['Data\Filtered\alphaSignal' num2str(i) '.mat']);
+    alphaSignal = importdata(['Data\Filtered\alphaSignal' num2str(i) '.mat']);
     disp(['    Generating alphaSignalEpoch' num2str(i) '...']);
-    alphaSignalEpoch = getEpochMatrix(temp.alphaSignal, 4, 1000);
+    alphaSignalEpoch = getEpochMatrix(alphaSignal, 4, 1000);
     disp(['    Saving alphaSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], 'alphaSignalEpoch', '-v7.3');
 
-    temp = load(['Data\Filtered\betaSignal' num2str(i) '.mat']);
+    betaSignal = importdata(['Data\Filtered\betaSignal' num2str(i) '.mat']);
     disp(['    Generating betaSignalEpoch' num2str(i) '...']);
-    betaSignalEpoch = getEpochMatrix(temp.betaSignal, 4, 1000);
+    betaSignalEpoch = getEpochMatrix(betaSignal, 4, 1000);
     disp(['    Saving betaSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], 'betaSignalEpoch', '-v7.3');
 
-    temp = load(['Data\Filtered\deltaSignal' num2str(i) '.mat']);
+    deltaSignal = importdata(['Data\Filtered\deltaSignal' num2str(i) '.mat']);
     disp(['    Generating deltaSignalEpoch' num2str(i) '...']);
-    deltaSignalEpoch = getEpochMatrix(temp.deltaSignal, 4, 1000);
+    deltaSignalEpoch = getEpochMatrix(deltaSignal, 4, 1000);
     disp(['    Saving deltaSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\deltaSignal' num2str(i) 'Epoch.mat'], 'deltaSignalEpoch', '-v7.3');
 
-    temp = load(['Data\Filtered\thetaSignal' num2str(i) '.mat']);
+    thetaSignal = importdata(['Data\Filtered\thetaSignal' num2str(i) '.mat']);
     disp(['    Generating thetaSignalEpoch' num2str(i) '...']);
-    thetaSignalEpoch = getEpochMatrix(temp.thetaSignal, 4, 1000);
+    thetaSignalEpoch = getEpochMatrix(thetaSignal, 4, 1000);
     disp(['    Saving thetaSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\thetaSignal' num2str(i) 'Epoch.mat'], 'thetaSignalEpoch', '-v7.3');
 
-    temp = load(['Data\Filtered\lowGammaSignal' num2str(i) '.mat']);
+    lowGammaSignal = importdata(['Data\Filtered\lowGammaSignal' num2str(i) '.mat']);
     disp(['    Generating thetaSignalEpoch' num2str(i) '...']);
-    lowGammaSignalEpoch = getEpochMatrix(temp.lowGammaSignal, 4, 1000);
+    lowGammaSignalEpoch = getEpochMatrix(lowGammaSignal, 4, 1000);
     disp(['    Saving thetaSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\lowGammaSignal' num2str(i) 'Epoch.mat'], 'lowGammaSignalEpoch', '-v7.3');
 
-    temp = load(['Data\Filtered\highGammaSignal' num2str(i) '.mat']);
+    highGammaSignal = importdata(['Data\Filtered\highGammaSignal' num2str(i) '.mat']);
     disp(['    Generating highGammaSignalEpoch' num2str(i) '...']);
-    highGammaSignalEpoch = getEpochMatrix(temp.highGammaSignal, 4, 1000);
+    highGammaSignalEpoch = getEpochMatrix(highGammaSignal, 4, 1000);
     disp(['    Saving highGammaSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\highGammaSignal' num2str(i) 'Epoch.mat'], 'highGammaSignalEpoch', '-v7.3');
 
-    temp = load(['Data\Filtered\infraSlowSignal' num2str(i) '.mat']);
+    infraSlowSignal = importdata(['Data\Filtered\infraSlowSignal' num2str(i) '.mat']);
     disp(['    Generating infraSlowSignalEpoch' num2str(i) '...']);
-    infraSlowSignalEpoch = getEpochMatrix(temp.infraSlowSignal, 4, 1000);
+    infraSlowSignalEpoch = getEpochMatrix(infraSlowSignal, 4, 1000);
     disp(['    Saving infraSlowSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\infraSlowSignal' num2str(i) 'Epoch.mat'], 'infraSlowSignalEpoch', '-v7.3');
     
 end
 
-
 % (2) get depth epoch matrices
-
-% load rawRecording which has depth data integrated in it
-temp = load('Data\Raw\rawRecording.mat');
-
-% generate depth epoch matrices
-for i = 1 : 6
+for i = 1 : 10
     
+    % load rawRecording which has depth data integrated in it
+    disp(['Loading depth matrix ' num2str(i) '...']);
+    rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
     disp(['Generating depth epoch matrix ' num2str(i) '...']);
-    depthData = temp.rawRecording{i}(:, 3);
+    depthData = rawRecording(:, 3);
     depthEpoch = getEpochMatrix(depthData, 4, 48000);
-    disp(['    Saving depth' num2str(i) 'Epoch.mat...']);
+    disp(['Saving depth' num2str(i) 'Epoch.mat...']);
     save(['Data\Epoch\depth' num2str(i) 'Epoch.mat'], 'depthEpoch', '-v7.3');
     
 end
