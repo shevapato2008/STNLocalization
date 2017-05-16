@@ -2,376 +2,12 @@
 cd('S:\Google Drive\Rutgers University\Research\DBS\Project\Matlab\Program')
 
 
+%% 1. Feature Extraction
 
-%% 1. Data Preprocessing
-
-%% 1.1 Load raw signal, LFP signal, and depth data %%
-
-% 2010-11-30
-
-% [Signal 1]
-%{
-Left STN Trial 1
-Impedance checks:
-15mm:	0.31 MOhm
-ZI Entry:	
-STN Entry:     2.15
-STN Exit      -2.52 [?]
-SN Entry:     -2.97 [?]
-Bubbling with pulse causing some pulse artifact
-Implanted to  -2.5 [?]
-%}
-
-% signal
-rawSignal1_part1 = loadRawSignal('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-rawSignal1_part2 = loadRawSignal('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-rawSignal{1} = vertcat(rawSignal1_part1, rawSignal1_part2);
-lfp1_part1 = loadLFP('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp1_part2 = loadLFP('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp{1} = vertcat(lfp1_part1, lfp1_part2);
-
-% depth
-depth1_part1 = loadDepth('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth1_part2 = loadDepth('Data\Raw\2010-11-30\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-% remove the difference in time before concatenating the depth data
-diff = depth1_part2(1, 1) - depth1_part1(size(depth1_part1, 1), 1);
-depth1_part2(:, 1) = depth1_part2(:, 1) - diff + 1;
-depth_temp = vertcat(depth1_part1, depth1_part2);
-% convert original depth data to milimeters above target
-depth{1} = convertDepth(depth_temp);
-
-
-% [Signal 2]
-%{
-Right STN Trial 1
-Impedance checks:
-15mm:	0.34 MOhm
-ZI Entry:     N/A
-STN Entry:	  5.94
-STN Exit:     1.73
-SN Entry:	
-Implant to 1.5 above target
-%}
-
-rawSignal{2} = loadRawSignal('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp{2} = loadLFP('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth_temp = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth{2} = convertDepth(depth_temp);
-
-
-% [Signal 3]
-%{
-Right STN Trial 2 (2 mm posterior to track 1)
-Impedance checks:
-15mm:	0.31 MOhm
-ZI Entry:      N/A
-STN Entry:	   4.3
-STN Exit:     0.62
-SN Entry:      N/A
-%}
-
-rawSignal{3} = loadRawSignal('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp{3} = loadLFP('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth_temp = loadDepth('Data\Raw\2010-11-30\STN Right\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth{3} = convertDepth(depth_temp);
-
-
-% 2010-12-07
-
-%{
-% Left STN Trial 1
-% Impedance checks:
-% 15mm:	0.26 MOhm
-% ZI Entry:	N/A
-% STN Entry:	N/A
-% STN Exit	N/A
-% SN Entry:	N/A
-% Cable switched during recording
-
-rawSignal5 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-rawSignal6 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-rawSignal7 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 2\WaveformData-Ch1.mat');
-lfp5 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp6 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp7 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 2\WaveformData-Ch1.mat');
-depth5 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth6 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth7 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 1\C\Snapshot - 3600.0 sec 2\WaveformData-Ch1.mat');
-%}
-
-
-% [Signal 4]
-%{
-Left STN Trial 2 (2mm posterior to track 1)
-11mm:	0.25 MOhm
-ZI Entry:     N/A
-STN Entry:	  1.3
-STN Exit:     0.2
-SN Entry:     N/A
-Quiet track from 4.5mm to -1mm
-%}
-
-rawSignal4_part1 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-rawSignal4_part2 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-rawSignal{4} = vertcat(rawSignal4_part1, rawSignal4_part2);
-lfp4_part1 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp4_part2 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp{4} = vertcat(lfp4_part1, lfp4_part2);
-depth4_part1 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth4_part2 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 2\P\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-% remove the difference in time before concatenating the depth data
-diff = depth4_part2(1, 1) - depth4_part1(size(depth4_part1, 1), 1);
-depth4_part2(:, 1) = depth4_part2(:, 1) - diff + 1;
-depth_temp = vertcat(depth4_part1, depth4_part2);
-depth{4} = convertDepth(depth_temp);
-
-
-
-% [Signal 5]
-%{
-Left STN Trial 3 (2mm anterior to track 1)
-No impedance checks
-ZI Entry:      N/A
-STN Entry:	   2.5
-STN Exit:     -2.3
-SN Entry:     -2.7
-Implant to 2.3 mm below target
-%}
-
-rawSignal5_part1 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-rawSignal5_part2 = loadRawSignal('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-rawSignal{5} = vertcat(rawSignal5_part1, rawSignal5_part2);
-lfp5_part1 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-lfp5_part2 = loadLFP('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp{5} = vertcat(lfp5_part1, lfp5_part2);
-
-% depth
-depth5_part1 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-depth5_part2 = loadDepth('Data\Raw\2010-12-07\STN Left\Pass 3\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-% remove the difference in time before concatenating the depth data
-diff = depth5_part2(1, 1) - depth5_part1(size(depth5_part1, 1), 1);
-depth5_part2(:, 1) = depth5_part2(:, 1) - diff + 1;
-depth_temp = vertcat(depth5_part1, depth5_part2);
-depth{5} = convertDepth(depth_temp);
-
-
-
-%{
-Right STN Trial 1
-Impedance checks:
-15mm:	0.25 MOhm
-ZI Entry:     N/A
-STN Entry:	N/A
-STN Exit:     N/A
-SN Entry:     N/A
-Electrode not clamped until 3.0mm, produces false map
-
-loadRawSignal('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-loadLFP('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-loadDepth('Data\Raw\2010-12-07\STN Right\Pass 1\C\Snapshot - 3600.0 sec\WaveformData-Ch1.mat');
-%}
-
-
-% [Signal 6]
-%{
-Right STN Trial 2 (2 mm anterior to track 1)
-15mm:	0.24 MOhm
-ZI Entry:      N/A
-STN Entry:	   4.4
-STN Exit:     0.34
-SN Entry:    -0.42
-Implant to 0.2 above target
-%}
-
-rawSignal{6} = loadRawSignal('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-lfp{6} = loadLFP('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth_temp = loadDepth('Data\Raw\2010-12-07\STN Right\Pass 2\A\Snapshot - 3600.0 sec 1\WaveformData-Ch1.mat');
-depth{6} = convertDepth(depth_temp);
-
-
-% save rawSignal.mat, lfp.mat, and depth.mat
-disp('Saving rawSignal.mat ...');
-save('Data\Raw\rawSignal.mat', 'rawSignal', '-v7.3');
-disp('Saving lfp.mat ...');
-save('Data\Raw\lfp.mat', 'lfp', '-v7.3');
-disp('Saving depth.mat ...');
-save('Data\Raw\depth.mat', 'depth', '-v7.3');
-
-% load rawSignal.mat, lfp.mat, and depth.mat
-disp('Loading rawSignal.mat ...');
-load('Data\Raw\rawSignal.mat');
-disp('Loading lfp.mat ...');
-load('Data\Raw\lfp.mat');
-disp('Loading depth.mat ...');
-load('Data\Raw\depth.mat');
-
-pwelch(rawSignal{1}, [], [], [], 48000)
-pwelch(lfp{1}, [], [], [], 1000)
-
-
-
-%% 1.2 Merge signal with depth data
-for i = 1 : 6
-    disp(['Generating rawRecording{' num2str(i) '} ...']);
-    rawRecording{i} = mergeSgnlDpth('rawSignal', rawSignal{i}, depth{i});
-    disp(['Generating lfpRecording{' num2str(i) '} ...']);
-    lfpRecording{i} = mergeSgnlDpth('lfp', lfp{i}, depth{i});
-end
-
-% save rawRecording.mat and lfpRecording.mat
-disp('Saving rawRecording.mat ...');
-save('Data\Raw\rawRecording.mat', 'rawRecording', '-v7.3');
-disp('Saving lfpRecording.mat ...');
-save('Data\Raw\lfpRecording.mat', 'lfpRecording', '-v7.3');
-
-
-
-%% 1.3 Generate filtered data
-% save local field potential (lfp) data to filtered folder
-temp = load('Data\Raw\lfp.mat');
-for i = 1 : 6
-    lfp = temp.lfp{i};
-    save(['Data\Filtered\lfp' num2str(i) '.mat'], varname(lfp));
-end
-
-% Apply the filters
-% load rawRecording.mat and lfpRecording.mat
-disp('Loading rawRecording.mat ...');
-load('Data\Raw\rawRecording.mat');
-disp('Loading lfpRecording.mat ...');
-load('Data\Raw\lfpRecording.mat');
-
-for i = 1 : 6
-    disp(['Generating filtered signals for recordings ' num2str(i) ' ...']);
-    applyFilters(rawRecording{i}(:, 2), lfpRecording{i}(:, 2), ...
-        ['Data\Filtered\300-3000\hpfSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\O300\hpfSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\highGammaSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\lowGammaSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\alphaSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\betaSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\thetaSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\deltaSignal' num2str(i) '.mat'], ...
-        ['Data\Filtered\infraSlowSignal' num2str(i) '.mat']);
-end
-
-% check 300-3000 filtered signal
-load('Filtered\300-3000\hpfSignal1.mat');
-figure
-pwelch(rawRecording{1}(:, 2), [], [], [], 48000)
-pwelch(hpfSignal, [], [], [], 48000)
-
-% check O300 filtered signal
-load('Filtered\O300\hpfSignal1.mat');
-figure
-pwelch(rawRecording{1}(:, 2), [], [], [], 48000)
-pwelch(hpfSignal, [], [], [], 48000)
-
-% check lfp signal
-pwelch(lfpRecording{1}(:, 2), [], [], [], 1000)
-
-% check high gamma signal
-load('Filtered\highGammaSignal1.mat');
-pwelch(highGammaSignal, [], [], [], 1000)
-
-
-
-%% 1.4 Convert 1D input signal to a matrix of epochs with 50% overlapping as rows
-% divide into epochs of 4 seconds
-% (1) get signal epoch matrices
-for i = 1 : 6
-    
-    disp(['Start group ' num2str(i) ' epoch matrices...']);
-    
-    temp = load(['Data\Filtered\300-3000\hpfSignal' num2str(i) '.mat']);
-    disp(['    Generating hpfSignalEpoch' num2str(i) '...']);
-    hpfSignalEpoch = getEpochMatrix(temp.hpfSignal, 4, 48000);
-    disp(['    Saving hpfSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\300-3000\hpfSignal' num2str(i) 'Epoch.mat'], ...
-        'hpfSignalEpoch', '-v7.3');
-
-    temp = load(['Data\Filtered\O300\hpfSignal' num2str(i) '.mat']);
-    disp(['    Generating hpfSignalEpoch' num2str(i) '...']);
-    hpfSignalEpoch = getEpochMatrix(temp.hpfSignal, 4, 48000);
-    disp(['    Saving hpfSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat'], ...
-        'hpfSignalEpoch', '-v7.3');
-
-
-    disp(['    Generating rawSignalEpoch' num2str(i) '...']);
-    rawSignalEpoch = getEpochMatrix(rawRecording{1}(:, 2), 4, 48000);
-    disp(['    Saving rawSignal' num2str(i) 'Epoch.mat...']);
-    save(['Data\Epoch\rawSignal' num2str(i) 'Epoch.mat'], 'rawSignalEpoch', '-v7.3');
-    
-    temp = load(['Data\Filtered\alphaSignal' num2str(i) '.mat']);
-    disp(['    Generating alphaSignalEpoch' num2str(i) '...']);
-    alphaSignalEpoch = getEpochMatrix(temp.alphaSignal, 4, 1000);
-    disp(['    Saving alphaSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], 'alphaSignalEpoch', '-v7.3');
-
-    temp = load(['Data\Filtered\betaSignal' num2str(i) '.mat']);
-    disp(['    Generating betaSignalEpoch' num2str(i) '...']);
-    betaSignalEpoch = getEpochMatrix(temp.betaSignal, 4, 1000);
-    disp(['    Saving betaSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], 'betaSignalEpoch', '-v7.3');
-
-    temp = load(['Data\Filtered\deltaSignal' num2str(i) '.mat']);
-    disp(['    Generating deltaSignalEpoch' num2str(i) '...']);
-    deltaSignalEpoch = getEpochMatrix(temp.deltaSignal, 4, 1000);
-    disp(['    Saving deltaSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\deltaSignal' num2str(i) 'Epoch.mat'], 'deltaSignalEpoch', '-v7.3');
-
-    temp = load(['Data\Filtered\thetaSignal' num2str(i) '.mat']);
-    disp(['    Generating thetaSignalEpoch' num2str(i) '...']);
-    thetaSignalEpoch = getEpochMatrix(temp.thetaSignal, 4, 1000);
-    disp(['    Saving thetaSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\thetaSignal' num2str(i) 'Epoch.mat'], 'thetaSignalEpoch', '-v7.3');
-
-    temp = load(['Data\Filtered\lowGammaSignal' num2str(i) '.mat']);
-    disp(['    Generating thetaSignalEpoch' num2str(i) '...']);
-    lowGammaSignalEpoch = getEpochMatrix(temp.lowGammaSignal, 4, 1000);
-    disp(['    Saving thetaSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\lowGammaSignal' num2str(i) 'Epoch.mat'], 'lowGammaSignalEpoch', '-v7.3');
-
-    temp = load(['Data\Filtered\highGammaSignal' num2str(i) '.mat']);
-    disp(['    Generating highGammaSignalEpoch' num2str(i) '...']);
-    highGammaSignalEpoch = getEpochMatrix(temp.highGammaSignal, 4, 1000);
-    disp(['    Saving highGammaSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\highGammaSignal' num2str(i) 'Epoch.mat'], 'highGammaSignalEpoch', '-v7.3');
-
-    temp = load(['Data\Filtered\infraSlowSignal' num2str(i) '.mat']);
-    disp(['    Generating infraSlowSignalEpoch' num2str(i) '...']);
-    infraSlowSignalEpoch = getEpochMatrix(temp.infraSlowSignal, 4, 1000);
-    disp(['    Saving infraSlowSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\infraSlowSignal' num2str(i) 'Epoch.mat'], 'infraSlowSignalEpoch', '-v7.3');
-    
-end
-
-
-% (2) get depth epoch matrices
-
-% load rawRecording which has depth data integrated in it
-temp = load('Data\Raw\rawRecording.mat');
-
-% generate depth epoch matrices
-for i = 1 : 6
-    
-    disp(['Generating depth epoch matrix ' num2str(i) '...']);
-    depthData = temp.rawRecording{i}(:, 3);
-    depthEpoch = getEpochMatrix(depthData, 4, 48000);
-    disp(['    Saving depth' num2str(i) 'Epoch.mat...']);
-    save(['Data\Epoch\depth' num2str(i) 'Epoch.mat'], 'depthEpoch', '-v7.3');
-    
-end
-
-
-
-%% 2. Feature Extraction
-
-%% 2.1 Generate feature matrices
-for i = 1 : 6
+%% 1.1 Generate feature matrices
+for i = 1 : 10
     getFeatureMatrix(i, 13, ...
-        ['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat'], ...
+        ['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\deltaSignal' num2str(i) 'Epoch.mat'], ...
@@ -379,149 +15,144 @@ for i = 1 : 6
         ['Data\Epoch\thetaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\lowGammaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\highGammaSignal' num2str(i) 'Epoch.mat'], ...
-    	['Data\Feature\O300\featureMatrix' num2str(i) '.mat'])
+    	['Data\Feature\featureMatrix' num2str(i) '.mat'])
 end
 
 
 
-%% 2.2 Take transformations (sqrt) to make variables more normally distributed
+%% 1.2 Take transformations (^1/3) to make variables more normally distributed
 % Scatter plot before transformation
-for i = 1 : 6
-featureScatterplot( ...
-    ['Pairwise Feature Scatter Plots before Transformation ' num2str(i)], ...
-    ['Data\Feature\O300\featureMatrix' num2str(i) '.mat'], ...
-    ['Figures\O300\Scatterplot\' num2str(i) 'orig.jpg']);
+for i = 1 : 10
+    
+    featureScatterplot( ...
+        ['Pairwise Feature Scatter Plots before Transformation ' num2str(i)], ...
+        ['Data\Feature\featureMatrix' num2str(i) '.mat'], ...
+        ['Figures\Scatterplot\' num2str(i) '.1.orig.bmp']);
+    
+    close all;
+    clear;
+    
 end
 
 % Transformation
-for i = 1 : 6
-featureList = [1, 2, 3, 4, 5, 7, 8, 9, 11, 12];
-transformFeatures(featureList, ...
-    ['Data\Feature\O300\featureMatrix' num2str(i) '.mat'], ...
-    ['Data\Feature\O300\transformFeatureMatrix' num2str(i) '.mat']);
+for i = 1 : 10
+    
+    % right skewed feature list
+    featureList = [1, 2, 3, 4, 5, 7, 8, 9, 11, 12];
+    
+    transformFeatures(featureList, ...
+        ['Data\Feature\featureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\transformFeatureMatrix' num2str(i) '.mat']);
+    
+    close all;
+    clear;
+    
 end
 
 % Scatter plot after transformation
-for i = 1 : 6
-featureScatterplot( ...
-    ['Pairwise Scatter Plots of Feature Matrix after Transformation ' num2str(i)], ...
-    ['Data\Feature\O300\transformFeatureMatrix' num2str(i) '.mat'], ...
-    ['Figures\O300\Scatterplot\' num2str(i) 'trans.jpg']);
+for i = 1 : 10
+    
+    featureScatterplot( ...
+        ['Pairwise Scatter Plots of Feature Matrix after Transformation ' num2str(i)], ...
+        ['Data\Feature\transformFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\Scatterplot\' num2str(i) '.2.trans.bmp']);
+    
+    close all;
+    clear;
+    
 end
 
 
 
-%% 2.3 Standardization, Normalization, Outlier Detection
-for i = 1 : 6
+%% 1.3 Standardization, Normalization, Outlier Detection
+for i = 1 : 10
     getNormFeatureMatrix(i, ...
-        ['Data\Feature\O300\transformFeatureMatrix' num2str(i) '.mat'], ...
-        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat']);
+        ['Data\Feature\transformFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat']);
 end
 
 % Scatter plot after normalization
-for i = 1 : 6
-featureScatterplot( ...
-    ['Pairwise Scatter Plots of Feature Matrix after Normalization ' num2str(i)], ...
-    ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
-    ['Figures\O300\Scatterplot\' num2str(i) 'norm.jpg']);
+for i = 1 : 10
+    featureScatterplot( ...
+        ['Pairwise Scatter Plots of Feature Matrix after Normalization ' num2str(i)], ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\Scatterplot\' num2str(i) '.3.norm.bmp']);
+    close all;
+    clear;
 end
 
 
-%% 3. Feature Activity Maps
+
+%% 2. Feature Activity Maps
 % create a matrix to load all STN entries and exits
-STNBounds = zeros(6, 2);
-STNBounds(1, :) = [2.15, -2.52];
-STNBounds(2, :) = [5.94, 1.73];
-STNBounds(3, :) = [4.30, 0.62];
-STNBounds(4, :) = [1.30, 0.20];
-STNBounds(5, :) = [2.50, -2.3];
-STNBounds(6, :) = [4.40, 0.34];
+STNBounds = zeros(10, 2);
+STNBounds(1, :) = [2.95, 0.30];
+STNBounds(2, :) = [2.20, -0.25];
+STNBounds(3, :) = [0.65, -3.82];
+STNBounds(4, :) = [0.47, -3.84];
+STNBounds(5, :) = [-2.19, -6.30];
+STNBounds(6, :) = [5.51, 0.80];
+STNBounds(7, :) = [4.20, -0.40];
+STNBounds(8, :) = [3.80, -1.30];
+STNBounds(9, :) = [5.12, 0.30];
+STNBounds(10, :) = [0.90, -2.50];
 
-location = ["2010-11-30\STN Left\Pass 1", ...
-            "2010-11-30\STN Right\Pass 1", ...
-            "2010-11-30\STN Right\Pass 2", ...
-            "2010-12-07\STN Left\Pass 2", ...
-            "2010-12-07\STN Left\Pass 3", ...
-            "2010-12-07\STN Right\Pass 2"];
+location = ["[2010-01-07] [Left] [Pass 1] [Center]", ...
+            "[2010-01-07] [Right] [Pass 1] [Center]", ...
+            "[2010-01-28] [Left] [Pass 3] [Lateral]", ...
+            "[2010-01-28] [Right] [Pass 1] [Center]", ...
+            "[2010-02-18] [Right] [Pass 1] [Center]", ...
+            "[2010-03-11] [Left] [Pass 2] [Posterior]", ...
+            "[2010-03-25] [Left] [Pass 2] [Center]", ...
+            "[2010-03-25] [Right] [Pass 2] [Anterior]", ...
+            "[2010-04-01] [Right] [Pass 2] [Anterior]", ...
+            "[2010-05-18] [Left] [Pass 1] [Center]"];
 
-for i = 1 : 6
+for i = 1 : 10
     plotFeatureMaps(i, ...
-        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-        ['Figures\O300\normFeatureMap_sdf' num2str(i) '.jpg'], ...
-        ['Figures\O300\normFeatureMap_sif' num2str(i) '.jpg'], ...
+        ['Figures\ActivityMap\' num2str(i) 'normFeatureMap_sdf.bmp'], ...
+        ['Figures\ActivityMap\' num2str(i) 'normFeatureMap_sif.bmp'], ...
         location, STNBounds(i, 1), STNBounds(i, 2));
 end
 
 
 
-%% 4. Clustering Algorithms
+%% 3. Clustering Algorithms
 
-%% 4.1 K-means clustering
-%{
+%% 3.1 K-means clustering
 
-idx = kmeans(X, k)
-idx = kmeans(X, k, Name, Value)
-[idx, C] = kmeans(___)
-[idx, C, sumd] = kmeans(___)
-[idx, C, sumd, D] = kmeans(___)
-
-Input Arguments:
-(1) X — Data
-    numeric matrix
-(2) k — Number of clusters
-    positive integer
-(3) Name-Value Pair Arguments
-    Specify optional comma-separated pairs of Name,Value arguments. Name
-    is the argument name and Value is the corresponding value. Name must
-    appear inside single quotes (' '). You can specify several name and
-    value pair arguments in any order as Name1, Value1, ..., NameN, ValueN.
-
-    Example:
-    'Distance', 'cosine', 'Replicates', 10, 'Options',
-    statset('UseParallel',1) specifies the cosine distance,
-    10 replicate clusters at different starting values,
-    and to use parallel computing.
-
-Output Arguments:
-(1) idx — Cluster indices
-    numeric column vector
-    idx has as many rows as X, and each row indicates the cluster
-    assignment of the corresponding observation.
-(2) C — Cluster centroid locations
-    numeric matrix
-    C is a k-by-p matrix, where row j is the centroid of cluster j.
-(3) sumd — Within-cluster sums of point-to-centroid distances
-    numeric column vector
-    sumd is a k-by-1 vector, where element j is the sum of
-    point-to-centroid distances within cluster j.
-(4) D — Distances from each point to every centroid
-    numeric matrix
-    D is an n-by-k matrix, where element (j, m) is the distance
-    from observation j to centroid m.
-
-%}
-
-for i = 1 : 6
+for i = 1 : 10
     
     [idx, C, sumd, D] = kMeansClustering( ...
-        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
-        ['Figures\O300\K-Means\k-Means' num2str(i) '.bmp'], ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
         i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
     
-    X = importdata(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat']);
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
     epochNum = size(X, 1);
     
     plotGroupSeries(epochNum, idx, ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
-        ['Figures\O300\K-Means\groupSeries' num2str(i) '.bmp']);
+        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
     
 end
 
+% Take a "majority vote" based on neighboring points in order to remove
+% some noise. This mimics the way a KNN classifier works.
+armlength = 10;
+winSize = armlength * 2 + 1;
+
+for i = (armlength + 1) : (length(vector) - armlength)
+    low = i - armlength;    % starting index of the window
+    high = i + armlength;   % ending index of the window
+    window = vector(low : high);
+end
 
 
-%% 4.2 Hierarchical Clustering
+%% 3.2 Hierarchical Clustering
 X = importdata('Data\Feature\O300\transformNormFeatureMatrix1.mat');
 Y1 = pdist(X, 'euclidean');  % euclidean is default
 Z1 = linkage(Y1, 'average');
@@ -562,42 +193,20 @@ hold off
 
 
 
-%% 4.3 DBSCAN clustering
+%% 3.3 DBSCAN clustering
 
-%{
-X = importdata('Data\Feature\O300\transformNormFeatureMatrix1.mat');
-
-epsilon = 0.2;
-MinPts = 8;
-idx = DBSCAN(X, epsilon, MinPts);
-tabulate(idx)
-
-% Visualization from a 2D angle
-feature1 = 4;
-feature2 = 8;
-figure;
-plot(X(idx == 0, feature1), X(idx == 0, feature2), 'k.', 'MarkerSize', 12)
-hold on
-plot(X(idx == 1, feature1), X(idx == 1, feature2), 'r.', 'MarkerSize', 12)
-plot(X(idx == 2, feature1), X(idx == 2, feature2), 'b.', 'MarkerSize', 12)
-plot(X(idx == 3, feature1), X(idx == 3, feature2), 'c.', 'MarkerSize', 12)
-plot(X(idx == 4, feature1), X(idx == 4, feature2), 'g.', 'MarkerSize', 12)
-title 'Cluster Assignments and Centroids'
-hold off
-%}
-
-for i = 1 : 6
+for i = 1 : 10
     
     idx = DBSCANClustering( ...
-        ['Data\Feature\O300\normFeatureMatrix' num2str(i) '.mat'], ...
-        0.2, 8);
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        0.20, 10);
     
-    X = importdata(['Data\Epoch\O300\hpfSignal' num2str(i) 'Epoch.mat']);
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
     epochNum = size(X, 1);
     plotGroupSeries(epochNum, idx, ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         STNBounds(i, 1), STNBounds(i, 2), 10, ...
-        ['Figures\O300\DBSCAN\groupSeries' num2str(i) '.bmp']);
+        ['Figures\DBSCAN\groupSeries' num2str(i) '.bmp']);
     
 end
 

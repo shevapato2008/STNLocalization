@@ -2782,7 +2782,7 @@ clear;
 
 %% 1.2 Merge signal with depth data
 
-for i = 1 : 53
+for i = 5
 
     % load the signals and depth
     disp(['Loading rawSignal ' num2str(i) ' ...']);
@@ -2842,9 +2842,107 @@ for i = 1 : 53
 
 end
 
-% Problems:
+
+
+%% Problems:
 % (1) wrong end point: #21
-% (2) go back too much: #5 #10 #35 #46
+% (2) go backwards too much: #5 #10 #35 #46
+
+% Fix problem (2): truncate the part that goes backwards
+recordingList = [5, 10, 35, 46];
+
+for i = 1 : length(recordingList)
+
+    disp(['Truncate rawRecording' num2str(recordingList(i)) '...']);
+    % load original raw recording
+    rawRecording = importdata( ...
+        ['Data\Raw\rawRecording' num2str(recordingList(i)) '.mat']);
+    % lowest depth
+    LOWESTDEPTH = min(rawRecording(:, 3));
+    % find out the index corresponding to the last time LOWESTDEPTH appeared
+    truncatePoint = 0;
+    len = length(rawRecording);
+    for j = 1 : len
+        if rawRecording(j, 3) == LOWESTDEPTH
+            truncatePoint = rawRecording(j, 1);
+        end
+    end
+
+    rawRecording_fix = rawRecording(rawRecording(:, 1) <= truncatePoint, :);
+
+    % save fixed raw recording
+    save(['Data\Raw\rawRecording' num2str(recordingList(i)) '.mat'], ...
+        'rawRecording_fix', '-v7.3');
+
+
+    disp(['Truncate lfpRecording' num2str(recordingList(i)) '...']);
+    % load original lfp recording
+    lfpRecording = importdata( ...
+        ['Data\Raw\lfpRecording' num2str(recordingList(i)) '.mat']);
+    % lowest depth
+    LOWESTDEPTH = min(lfpRecording(:, 3));
+    % find out the index corresponding to the last time LOWESTDEPTH appeared
+    truncatePoint = 0;
+    len = length(lfpRecording);
+    for j = 1 : len
+        if lfpRecording(j, 3) == LOWESTDEPTH
+            truncatePoint = lfpRecording(j, 1);
+        end
+    end
+
+    lfpRecording_fix = lfpRecording(lfpRecording(:, 1) <= truncatePoint, :);
+
+    % save fixed lfp recording
+    save(['Data\Raw\lfpRecording' num2str(recordingList(i)) '.mat'], ...
+        'lfpRecording_fix', '-v7.3');
+
+
+    % generate signal-depth merging plot to visually check merging outcome
+    depth = importdata(['Data\Raw\depth' num2str(recordingList(i)) '.mat']);
+    
+    disp(['Generating the fixed signal-depth merging plot ' ...
+        num2str(recordingList(i)) '...']);
+    figure
+    ax(1) = subplot(3, 1, 1);
+    plot(depth(:, 3));
+    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on')
+    grid on
+    grid minor
+    xlabel('Time Samples')
+    ylabel('Depth Map (mm)')
+    title(['Depth Map for the Sampled Depth Data ' ...
+        num2str(recordingList(i))]);
+
+    ax(2) = subplot(3, 1, 2);
+    plot(rawRecording_fix(:, 3));
+    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on')
+    grid on
+    grid minor
+    xlabel('Time (1/48000 sec)')
+    ylabel('Depth Map (mm)')
+    title(['Depth Map for the Merged Raw Recording ' ...
+        num2str(recordingList(i)) ' (Fixed)']);
+
+    ax(3) = subplot(3, 1, 3);
+    plot(lfpRecording_fix(:, 3));
+    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on')
+    grid on
+    grid minor
+    xlabel('Time (1/1000 sec)')
+    ylabel('Depth Map (mm)')
+    title(['Depth Map for the Merged Local Field Potential Recording ' ...
+        num2str(recordingList(i)) ' (Fixed)']);
+
+    % save figure as full screen
+    disp(['Saving signal-depth merging plot ' num2str(recordingList(i)) '...']);
+    saveFigure(gcf, ['Data\Raw\depthMergePlot' num2str(recordingList(i)) '_fix.bmp']);
+
+    close all;
+
+end
+
+% clear memory
+clear;
 
 
 
@@ -2852,22 +2950,28 @@ end
 
 % save local field potential (lfp) data to filtered folder
 for i = 1 : 53
-    lfp = importdata(['Data\Raw\lfp' num2str(i) '.mat']);
+    
+    % Use lfpRecording because some useless information has been truncated
+    % from it previously.
+    lfpRecording = importdata(['Data\Raw\lfpRecording' num2str(i) '.mat']);
+    
+    lfp = lfpRecording(:, 2);
     save(['Data\Filtered\lfp' num2str(i) '.mat'], varname(lfp));
     clear;
+    
 end
 
 % Apply the filters [Caution: Time Consuming!]
-for i = 1 : 10
+for i = 19 : 30
     
     % load rawRecording and lfpRecording
-    disp(['Loading rawRecording' num2str(i) '.mat ...']);
+    disp(['Loading rawRecording' num2str(i) '.mat...']);
     rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
-    disp(['Loading lfpRecording' num2str(i) '.mat ...']);
+    disp(['Loading lfpRecording' num2str(i) '.mat...']);
     lfpRecording = importdata(['Data\Raw\lfpRecording' num2str(i) '.mat']);
 
     % generating filtered signals
-    disp(['Generating filtered signals for recordings ' num2str(i) ' ...']);
+    disp(['Generating filtered signals for recordings ' num2str(i) '...']);
     applyFilters(rawRecording(:, 2), lfpRecording(:, 2), ...
         ['Data\Filtered\hpfSignal' num2str(i) '.mat'], ...
         ['Data\Filtered\highGammaSignal' num2str(i) '.mat'], ...
@@ -2885,7 +2989,7 @@ end
 
 % Check O300 filter efficacy
 % By comparing the frequency maps: rawSignal vs. hpfSignal
-for i = 1 : 10
+for i = 11 : 20
     
     % load signals
     rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
@@ -2978,6 +3082,9 @@ for i = 1 : 10
     disp(['    Saving infraSlowSignalEpoch' num2str(i) '.mat...']);
     save(['Data\Epoch\infraSlowSignal' num2str(i) 'Epoch.mat'], 'infraSlowSignalEpoch', '-v7.3');
     
+    % clear memory
+    clear;
+    
 end
 
 % (2) get depth epoch matrices
@@ -2991,6 +3098,9 @@ for i = 1 : 10
     depthEpoch = getEpochMatrix(depthData, 4, 48000);
     disp(['Saving depth' num2str(i) 'Epoch.mat...']);
     save(['Data\Epoch\depth' num2str(i) 'Epoch.mat'], 'depthEpoch', '-v7.3');
+    
+    % clear memory
+    clear;
     
 end
 
