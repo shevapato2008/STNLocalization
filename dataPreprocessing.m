@@ -1319,10 +1319,10 @@ depth = convertDepth(depth_part0);
 
 % (2) signals
 % load rawSignals
-rawSignal = loadRawSignal([dataDir '2010-10-05_STN Right_Pass 1_C_Snapshot - 3600_.0 sec 1.mat']);
+rawSignal = loadRawSignal([dataDir '2010-10-05_STN Right_Pass 1_C_Snapshot - 3600_.0 sec.mat']);
 
 % load lfps
-lfp = loadLFP([dataDir '2010-10-05_STN Right_Pass 1_C_Snapshot - 3600_.0 sec 1.mat']);
+lfp = loadLFP([dataDir '2010-10-05_STN Right_Pass 1_C_Snapshot - 3600_.0 sec.mat']);
 
 % (3) save data
 disp('Saving rawSignal21.mat ...');
@@ -2782,7 +2782,7 @@ clear;
 
 %% 1.2 Merge signal with depth data
 
-for i = 5
+for i = 1 : 53
 
     % load the signals and depth
     disp(['Loading rawSignal ' num2str(i) ' ...']);
@@ -2962,7 +2962,7 @@ for i = 1 : 53
 end
 
 % Apply the filters [Caution: Time Consuming!]
-for i = 19 : 30
+for i = 1 : 53
     
     % load rawRecording and lfpRecording
     disp(['Loading rawRecording' num2str(i) '.mat...']);
@@ -2989,7 +2989,7 @@ end
 
 % Check O300 filter efficacy
 % By comparing the frequency maps: rawSignal vs. hpfSignal
-for i = 11 : 20
+for i = 1 : 53
     
     % load signals
     rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
@@ -3029,7 +3029,7 @@ end
 % divide into epochs of 4 seconds
 
 % (1) get signal epoch matrices
-for i = 1 : 10
+for i = 1 : 53
     
     disp(['Start group ' num2str(i) ' epoch matrices...']);
     
@@ -3088,7 +3088,7 @@ for i = 1 : 10
 end
 
 % (2) get depth epoch matrices
-for i = 1 : 10
+for i = 1 : 53
     
     % load rawRecording which has depth data integrated in it
     disp(['Loading depth matrix ' num2str(i) '...']);
