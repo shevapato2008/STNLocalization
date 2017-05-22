@@ -13,8 +13,8 @@ ncol = size(X, 2);
 for j = 1 : nfeature
     for i = 1 : nrow
         % no transformation
-        % X(i, featureList(j)) = sqrt(X(i, featureList(j)));    % ^(1/2)
-        X(i, featureList(j)) = X(i, featureList(j)) ^ (1/3);    % ^(1/3)
+        X(i, featureList(j)) = sqrt(X(i, featureList(j)));    % ^(1/2)
+        % X(i, featureList(j)) = X(i, featureList(j)) ^ (1/3);    % ^(1/3)
     end
 end
 

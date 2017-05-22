@@ -6,8 +6,9 @@ function [ output_args ] = featureScatterplot(headline, ...
 % import feature matrix
 mat = importdata(featurematrixPath);
 
-% generate the plot
-[H, AX] = plotmatrix(mat);
+% generate a scatter plot matrix
+f = figure('visible', 'off');
+[H, AX] = plotmatrix(mat(:, 1 : 13));
 
 % label the plots
 data_labels = {'MISI', 'SISI', 'CVISI', 'PS', 'BR', 'PB', 'FR', ...
@@ -20,7 +21,7 @@ end
 
 title(headline, 'FontSize', 14);
 
-saveFigure(gcf, figurePath);
+saveFigure(f, figurePath);
 
 end
 

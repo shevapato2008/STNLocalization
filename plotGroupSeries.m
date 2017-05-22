@@ -25,7 +25,7 @@ for i = 2 : length(depthMean)
     end
 end
 
-figure
+f = figure('visible', 'off');
 bar(idx1, 'cyan');
 addPatch(time1, time2, 0, numGroup);     % add a patch
 h = title({['K-means Clustering for MER ' num2str(index)], ...
@@ -33,7 +33,7 @@ h = title({['K-means Clustering for MER ' num2str(index)], ...
               ['STN Entry: ' num2str(STNENTRY)], ...
               ['STN Exit: ' num2str(STNEXIT)]});
 set(h, 'FontSize', 12, 'FontWeight', 'normal')
-saveFigure(gcf, groupSeriesPath);
+saveFigure(f, groupSeriesPath);
 close all;
 
 end

@@ -2846,10 +2846,20 @@ end
 
 %% Problems:
 % (1) wrong end point: #21
-% (2) go backwards too much: #5 #10 #35 #46
+% (2) go backwards too much:
+%     #3 #5 #7 #10 #11 #35 #46
+% (3) jump in depth leads to noise in feature activity map
+%     #14 #17
+% (4) big noise that contaminated a good result: 
+%     #15 #16 #20 #21 #23 #26 #32 #39 #40 #45 #46 #52
+%     possible solution to (3) and (4): eliminate noise from feature
+%     matrices using sliding window
+% (5) signal too short: #19
+
+% Fix problem (1): simple error, fixed
 
 % Fix problem (2): truncate the part that goes backwards
-recordingList = [5, 10, 35, 46];
+recordingList = [3, 5, 7, 10, 11, 35, 46];
 
 for i = 1 : length(recordingList)
 

@@ -20,7 +20,7 @@ hpfSignalEpoch = temp.hpfSignalEpoch;
 numEpoch = size(hpfSignalEpoch, 1);
 
 % Create empty feature matrix
-featureMatrix = zeros(numEpoch, numFeatures);
+featureMatrix = zeros(numEpoch, numFeatures + 1);
 
 % Load function handle of spike dependent features
 sdf = spikeDepFeatures;
@@ -51,15 +51,6 @@ end
 
 disp('Creating spike independent features...')
 
-% load filtered signals
-load(alphaSignalEpochPath);         % alpha signal 9Hz - 11Hz
-load(betaSignalEpochPath);          % beta signal 13Hz - 30Hz
-load(deltaSignalEpochPath);         % delta signal 1Hz - 4Hz
-load(infraSlowSignalEpochPath);     % infra-slow signal 1Hz - 4Hz
-load(thetaSignalEpochPath);         % theta signal 4Hz - 8Hz
-load(lowGammaSignalEpochPath);      % low gamma signal 30Hz - 50Hz
-load(highGammaSignalEpochPath);     % high gamma signal 50Hz - 90Hz
-
 % Load function handle of spike dependent features
 sif = spikeIndepFeatures;
 
@@ -80,9 +71,25 @@ for i = 1 : numEpoch
     
 end
 
-
-% (3) Spike independent features
+%{
+% (3) lfp-based features
 disp('Creating lfp-based features...')
+
+% load lfp-related signals
+load(alphaSignalEpochPath);         % alpha signal 9Hz - 11Hz
+load(betaSignalEpochPath);          % beta signal 13Hz - 30Hz
+load(deltaSignalEpochPath);         % delta signal 1Hz - 4Hz
+load(infraSlowSignalEpochPath);     % infra-slow signal 1Hz - 4Hz
+load(thetaSignalEpochPath);         % theta signal 4Hz - 8Hz
+load(lowGammaSignalEpochPath);      % low gamma signal 30Hz - 50Hz
+load(highGammaSignalEpochPath);     % high gamma signal 50Hz - 90Hz
+%}
+
+
+% (4) Add "time" as the last dimension
+for i = 1 : numEpoch
+    featureMatrix(i, numFeatures + 1) = sif.curv_len(hpfSignalEpoch(i, :));
+end
 
 
 disp(['Saving featureMatrix' num2str(index) '...']);

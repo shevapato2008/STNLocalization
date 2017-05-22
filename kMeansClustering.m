@@ -19,7 +19,7 @@ initialization = 'plus';
 [idx, C, sumd, D] = kmeans(X, k, 'Distance', distancetype, 'Start', initialization);
 
 % Visualization from a 2D angle
-figure;
+f = figure('visible', 'off');
 plot(X(idx == 1, feature1), X(idx == 1, feature2), 'r.', 'MarkerSize', 12)
 hold on
 plot(X(idx == 2, feature1), X(idx == 2, feature2), 'b.', 'MarkerSize', 12)
@@ -35,7 +35,7 @@ h = title({['Cluster Assignments and Centroids for MER ' num2str(index)], ...
 set(h, 'FontSize', 12, 'FontWeight', 'normal')
 hold off
 
-saveFigure(gcf, clusteringPath);
+saveFigure(f, clusteringPath);
 close all;
 
 end

@@ -29,7 +29,8 @@ end
 
 % (1) feature map for spike dependent features
 
-figure
+f1 = figure('visible', 'off');
+
 ax(1) = subplot(4, 2, 1);
 plot(time, normFeatureMatrix(:, 1));
 xlabel('Time (s)')
@@ -102,14 +103,15 @@ set(h, 'FontSize', 12, 'FontWeight', 'normal')
 % save figure as full screen
 disp(['Saving normalized spike dependent feature maps for MER ' ...
     num2str(index) '...']);
-saveFigure(gcf, imagePath1);
+saveFigure(f1, imagePath1);
 
 close all
 
 
 % (2) feature map for spike independent features
 
-figure
+f2 = figure('visible', 'off');
+
 ax(1) = subplot(4, 2, 1);
 plot(time, normFeatureMatrix(:, 8));
 xlabel('Time (s)')
@@ -175,7 +177,7 @@ set(h, 'FontSize', 12, 'FontWeight', 'normal')
 % save figure as full screen
 disp(['Saving normalized spike independent feature maps for MER ' ...
     num2str(index) '...']);
-saveFigure(gcf, imagePath2);
+saveFigure(f2, imagePath2);
 
 close all
 
