@@ -1,21 +1,27 @@
 function [ output_args ] = plotFeatureMaps(index, ...
-    normFeatureMatrixPath, depthPath, imagePath1, imagePath2, ...
-    location, STNENTRY, STNEXIT)
+    normFeatureMatrixPath, lfpFeatureMatrixPath, depthPath, ...
+    imagePath1, imagePath2, lfpImageFolder, location, STNENTRY, STNEXIT)
 % function plotFeatureMaps
 %   - plots an activity map for each feature.
 %   - adds shade on STN region
 
-% load normalized feature matrix and calculate x axis
+% load normalized feature matrix
 disp(['Loading normalized feature matrix ' num2str(index) '...']);
-load(normFeatureMatrixPath);
-timeInterval = 2;       % 4 seconds for each epoch with 50% overlap
-                        % this means 2 seconds on average
+normFeatureMatrix = importdata(normFeatureMatrixPath);
+
+% calculate x-axis (time)
+timeInterval = 2;	% 4 seconds for each epoch with 50% overlap
+                 	% this means 2 seconds on average
 timeScale = size(normFeatureMatrix, 1) * timeInterval;
 time = 2 : timeInterval : timeScale;
 
+% load lfp-based feature matrix
+disp(['Loading lfp-based feature matrix ' num2str(index) '...']);
+lfpFeatureMatrix = importdata(lfpFeatureMatrixPath);
+
 % load depth epoch matrix and calculate STN entry and exit on x-axis
 disp(['Loading depth data ' num2str(index) '...']);
-load(depthPath);
+depthEpoch = importdata(depthPath);
 depthMean = mean(transpose(depthEpoch));
 for i = 2 : length(depthMean)
     if depthMean(i - 1) > STNENTRY && depthMean(i) <= STNENTRY
@@ -29,7 +35,7 @@ end
 
 % (1) feature map for spike dependent features
 
-f1 = figure('visible', 'off');
+f = figure('visible', 'off');
 
 ax(1) = subplot(4, 2, 1);
 plot(time, normFeatureMatrix(:, 1));
@@ -103,14 +109,14 @@ set(h, 'FontSize', 12, 'FontWeight', 'normal')
 % save figure as full screen
 disp(['Saving normalized spike dependent feature maps for MER ' ...
     num2str(index) '...']);
-saveFigure(f1, imagePath1);
+saveFigure(f, imagePath1);
 
 close all
 
 
 % (2) feature map for spike independent features
 
-f2 = figure('visible', 'off');
+f = figure('visible', 'off');
 
 ax(1) = subplot(4, 2, 1);
 plot(time, normFeatureMatrix(:, 8));
@@ -177,9 +183,89 @@ set(h, 'FontSize', 12, 'FontWeight', 'normal')
 % save figure as full screen
 disp(['Saving normalized spike independent feature maps for MER ' ...
     num2str(index) '...']);
-saveFigure(f2, imagePath2);
+saveFigure(f, imagePath2);
 
 close all
+
+
+
+% (3) feature maps for lfp-based features
+
+% lfp-related band-pass signals
+lfpBandNames = ["Alpha", "Beta", "Delta", "Infra-Slow", "Theta", ...
+    "Low Gamma", "High Gamma"];
+
+for i = 1 : 7
+f = figure('visible', 'off');
+
+ax(1) = subplot(3, 2, 1);
+plot(time, lfpFeatureMatrix(:, (i - 1) * 5 + 1));
+xlabel('Time (s)')
+ylabel('PowerXw')
+title('Power band ratio of signal X in frequency band W')
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(2) = subplot(3, 2, 2);
+plot(time, lfpFeatureMatrix(:, (i - 1) * 5 + 2));
+xlabel('Time (s)')
+ylabel('PKXw')
+title('Peak to average power ratio of signal X in frequency band W')
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(3) = subplot(3, 2, 3);
+plot(time, lfpFeatureMatrix(:, (i - 1) * 5 + 3));
+xlabel('Time (s)')
+ylabel('FmaxPKXw')
+title(['Frequency corresponding to maximum peak to average power ' ...
+    'ratio of signal X in frequency band W'])
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(4) = subplot(3, 2, 4);
+plot(time, lfpFeatureMatrix(:, (i - 1) * 5 + 4));
+xlabel('Time (s)')
+ylabel('CVXw')
+title('Coefficient of variation of signal X in frequency band W')
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(5) = subplot(3, 2, 5);
+plot(time, lfpFeatureMatrix(:, (i - 1) * 5 + 5));
+xlabel('Time (s)')
+ylabel('ZeroCrossX')
+title('Percentage of zero crossings in signal X')
+addPatch(x1, x2, 0, 1);     % add a patch
+
+% depth map
+ax(6) = subplot(3, 2, 6);
+plot(time, depthMean);
+set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on')
+grid on
+grid minor
+xlabel('Time (s)')
+ylabel('Milimeters Above Target')
+title('Depth Map');
+addPatch(0, timeScale, STNENTRY, STNEXIT);	% add a patch
+
+h = suptitle({strcat(lfpBandNames(i), " Signal Related Features for MER ", num2str(index)), ...
+              location(index), ...
+              ['STN Entry: ' num2str(STNENTRY)], ...
+              ['STN Exit: ' num2str(STNEXIT)]});
+set(h, 'FontSize', 12, 'FontWeight', 'normal')
+
+% add grid to subplot(s)
+% grid(ax(7),'on')
+
+% save figure as full screen
+disp(['Saving lfp-based feature maps for MER ' ...
+    num2str(index) '...']);
+image3Path = strcat(lfpImageFolder, num2str(index), lfpBandNames(i), ".bmp");
+disp(['Saving to ' char(image3Path)]);
+saveFigure(f, char(image3Path));
+
+close all
+
+end
+
+
 
 end
 

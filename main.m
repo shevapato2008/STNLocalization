@@ -15,11 +15,12 @@ for i = 1 : 53
         ['Data\Epoch\thetaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\lowGammaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\highGammaSignal' num2str(i) 'Epoch.mat'], ...
-    	['Data\Feature\featureMatrix' num2str(i) '.mat'])
+    	['Data\Feature\featureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\lfpFeatureMatrix' num2str(i) '.mat'])
 end
 
 
-%% 1.2 Take transformations (^1/3) to make variables more normally distributed
+%% 1.2 Take transformations (sqrt) to make variables more normally distributed
 % Scatter plot before transformation
 for i = 1 : 53
     
@@ -87,15 +88,25 @@ for i = 1 : 53
         'newX', '-v7.3');
 end
 
-
-
 for i = 1 : 53
     
+    % high-pass filtered signal features
     getNormFeatureMatrix(i, ...
         ['Data\Feature\transformFeatureMatrix_rmoutlier' num2str(i) '.mat'], ...
         ['Data\Feature\normFeatureMatrix' num2str(i) '.mat']);
     
 end
+
+for i = 1 : 53
+        
+    % lfp-based features
+    getNormFeatureMatrix(i, ...
+        ['Data\Feature\lfpFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\normlfpFeatureMatrix' num2str(i) '.mat']);
+
+end
+
+
 
 % Scatter plot after normalization
 for i = 1 : 53
@@ -107,6 +118,31 @@ for i = 1 : 53
         ['Figures\Scatterplot\' num2str(i) '.3.norm.bmp']);
     close all;
     clear;
+    
+end
+
+
+
+%% 1.3.1 no transformation 05/23/2017
+
+% use sliding window to eliminate "outliers"
+for i = 1 : 53
+    X = importdata(['Data\Feature\featureMatrix' num2str(i) '.mat']);
+    newX = zeros(size(X));
+    for j = 1 : 13
+        newX(:, j) = outlierDetect(X(:, j), 20);
+    end
+    newX(:, 14) = X(:, 14);
+    save(['Data\Feature\featureMatrix_rmoutlier' num2str(i) '.mat'], ...
+        'newX', '-v7.3');
+end
+
+
+for i = 1 : 53
+    
+    getNormFeatureMatrix(i, ...
+        ['Data\Feature\featureMatrix_rmoutlier' num2str(i) '.mat'], ...
+        ['Data\Feature\normFeatureMatrix_notrans' num2str(i) '.mat']);
     
 end
 
@@ -223,11 +259,21 @@ location = ["[2010-01-07] [Left] [Pass 1] [Center]", ...
             "[2011-08-16] [Left] [Pass 1] [Center]", ...
             "[2011-08-16] [Right] [Pass 1] [Center]"];
 
-
-
 for i = 1 : 53
     plotFeatureMaps(i, ...
         ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\normlfpFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        ['Figures\ActivityMap\' num2str(i) 'normFeatureMap_sdf.bmp'], ...
+        ['Figures\ActivityMap\' num2str(i) 'normFeatureMap_sif.bmp'], ...
+        "Figures\ActivityMap\lfp\", ...
+        location, STNBounds(i, 1), STNBounds(i, 2));
+end
+
+% no transformation 05/23/2017
+for i = 1 : 53
+    plotFeatureMaps(i, ...
+        ['Data\Feature\normFeatureMatrix_notrans' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         ['Figures\ActivityMap\' num2str(i) 'normFeatureMap_sdf.bmp'], ...
         ['Figures\ActivityMap\' num2str(i) 'normFeatureMap_sif.bmp'], ...
@@ -236,15 +282,45 @@ end
 
 
 
+
 %% 3. Clustering Algorithms
 
 %% 3.1 K-means clustering
 
+% 3.1.1 with transformation
+for i = 1 : 53
+
+    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    [idx, C, sumd, D] = kMeansClustering( ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
+        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
+
+% take a majority vote to smooth the output
+%     newIdx = majorityVote(idx, 10);
+%     
+%     plotGroupSeries(epochNum, newIdx, ...
+%     ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+%     i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+%     ['Figures\K-Means\' num2str(i) '.2.1.groupSeries_majvot.bmp']);
+
+end
+
+% 3.1.2 no transformation
 for i = 1 : 53
     
     disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
     [idx, C, sumd, D] = kMeansClustering( ...
-        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\normFeatureMatrix_notrans' num2str(i) '.mat'], ...
         ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
         i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
     
@@ -256,8 +332,8 @@ for i = 1 : 53
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
         ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
-    
-    % take a majority vote to smooth the output
+      
+% take a majority vote to smooth the output
 %     newIdx = majorityVote(idx, 10);
 %     
 %     plotGroupSeries(epochNum, newIdx, ...
@@ -266,6 +342,8 @@ for i = 1 : 53
 %     ['Figures\K-Means\' num2str(i) '.2.1.groupSeries_majvot.bmp']);
 
 end
+
+
 
 % Take a "majority vote" based on neighboring points in order to remove
 % some noise. This mimics the way a KNN classifier works.
@@ -324,16 +402,21 @@ hold off
 
 for i = 1 : 10
     
+    disp(['Generating and saving the DBSCAN clustering figure ' num2str(i) '...']);
     idx = DBSCANClustering( ...
         ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
-        0.20, 10);
+        0.20, 10, ...
+        ['Figures\DBSCAN\' num2str(i) '.1.k-Means.bmp'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2));
     
     X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
     epochNum = size(X, 1);
+    
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
     plotGroupSeries(epochNum, idx, ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-        STNBounds(i, 1), STNBounds(i, 2), 10, ...
-        ['Figures\DBSCAN\groupSeries' num2str(i) '.bmp']);
+        i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+        ['Figures\DBSCAN\' num2str(i) '.2.groupSeries.bmp']);
     
 end
 

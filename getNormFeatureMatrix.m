@@ -17,10 +17,6 @@ for col = 1 : numCol
     for row = 1 : numRow
         stdFeatureMatrix(row, col) ...
             = (featureMatrix(row, col) - MEDIAN) / STD;
-%         if abs(stdFeatureMatrix(row, col)) > 5
-%             stdFeatureMatrix(row, col) = ...
-%                 sign(stdFeatureMatrix(row, col)) * 5;
-%         end
     end
 end
 

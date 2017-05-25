@@ -2847,7 +2847,7 @@ end
 %% Problems:
 % (1) wrong end point: #21
 % (2) go backwards too much:
-%     #3 #5 #7 #10 #11 #35 #46
+%     #3 #5 #7 #10 #11 #35 #36 #46
 % (3) jump in depth leads to noise in feature activity map
 %     #14 #17
 % (4) big noise that contaminated a good result: 
@@ -2858,7 +2858,7 @@ end
 
 % Fix problem (1): simple error, fixed
 
-% Fix problem (2): truncate the part that goes backwards
+% Fix problem (2): truncated the part that goes backwards
 recordingList = [3, 5, 7, 10, 11, 35, 46];
 
 for i = 1 : length(recordingList)
@@ -3005,18 +3005,19 @@ for i = 1 : 53
     rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
     hpfSignal = importdata(['Data\Filtered\hpfSignal' num2str(i) '.mat']);
 
-    % draw plots
-    figure
+    % generate plots
+    f = figure('visible', 'off');
     ax(1) = subplot(2, 1, 1);
     pwelch(rawRecording(:, 2), [], [], [], 48000)
     title(['Raw Recording ' num2str(i)]);
+    
     ax(2) = subplot(2, 1, 2);
     pwelch(hpfSignal, [], [], [], 48000)
     title(['Over 300Hz High-Pass Filtered Signal ' num2str(i)]);
     
     % save figure as full screen
-    disp(['Saving pwelch plot ' num2str(i) '...']);
-    saveFigure(gcf, ['Data\Filtered\pwelchPlot' num2str(i) '.bmp']);
+    disp(['Saving pwelch plots for hpfSignal ' num2str(i) '...']);
+    saveFigure(f, ['Data\Filtered\pwelchPlot' num2str(i) '_hpf.bmp']);
     
     % close the figure
     close all;
@@ -3026,13 +3027,65 @@ for i = 1 : 53
 
 end
 
-% % check lfp band-pass filters
-% pwelch(lfpRecording{1}(:, 2), [], [], [], 1000)
-% 
-% % check high gamma signal
-% load('Filtered\highGammaSignal1.mat');
-% pwelch(highGammaSignal, [], [], [], 1000)
+% check efficacy of lfp band-pass filters
+for i = 1 : 53
 
+    % load signals
+    lfpRecording = importdata(['Data\Raw\lfpRecording' num2str(i) '.mat']);
+    highGammaSignal = importdata(['Filtered\highGammaSignal' num2str(i) '.mat']);
+    lowGammaSignal = importdata(['Filtered\lowGammaSignal' num2str(i) '.mat']);
+    alphaSignal = importdata(['Filtered\alphaSignal' num2str(i) '.mat']);
+    betaSignal = importdata(['Filtered\betaSignal' num2str(i) '.mat']);
+    thetaSignal = importdata(['Filtered\thetaSignal' num2str(i) '.mat']);
+    deltaSignal = importdata(['Filtered\deltaSignal' num2str(i) '.mat']);
+    infraSlowSignal = importdata(['Filtered\infraSlowSignal' num2str(i) '.mat']);
+
+    % generate plots
+    f = figure('visible', 'off');
+    
+    ax(1) = subplot(4, 2, 1);
+    pwelch(lfpRecording(:, 2), [], [], [], 1000)
+    title(['LFP Signal ' num2str(i) ' (0-500 Hz)']);
+
+    ax(2) = subplot(4, 2, 2);
+    pwelch(highGammaSignal, [], [], [], 1000)
+    title(['High Gamma Signal ' num2str(i) ' (50-90 Hz)']);
+
+    ax(3) = subplot(4, 2, 3);
+    pwelch(lowGammaSignal, [], [], [], 1000)
+    title(['Low Gamma Signal ' num2str(i) ' (30-50 Hz)']);
+
+    ax(4) = subplot(4, 2, 4);
+    pwelch(alphaSignal, [], [], [], 1000)
+    title(['Alpha Signal ' num2str(i) ' (9-11 Hz)']);
+
+    ax(5) = subplot(4, 2, 5);
+    pwelch(betaSignal, [], [], [], 1000)
+    title(['Beta Signal ' num2str(i) ' (13-30 Hz)']);
+
+    ax(6) = subplot(4, 2, 6);
+    pwelch(thetaSignal, [], [], [], 1000)
+    title(['Theta Signal ' num2str(i) ' (4-8 Hz)']);
+
+    ax(7) = subplot(4, 2, 7);
+    pwelch(deltaSignal, [], [], [], 1000)
+    title(['Delta Signal ' num2str(i) ' (1-4 Hz)']);
+
+    ax(8) = subplot(4, 2, 8);
+    pwelch(infraSlowSignal, [], [], [], 1000)
+    title(['Infra Slow Signal ' num2str(i) ' (0-1 Hz)']);
+
+    % save figure as full screen
+    disp(['Saving pwelch plots for lfp-filtered signals ' num2str(i) '...']);
+    saveFigure(f, ['Data\Filtered\pwelchPlot' num2str(i) '_lfp.bmp']);
+
+    % close the figure
+    close all;
+
+    % clear memory
+    clear;
+
+end
 
 
 %% 1.4 Convert 1D input signal to a matrix of epochs with 50% overlapping as rows
