@@ -208,6 +208,11 @@ function output = firingRate(spikeLocs, signal, samplingRate)
 end
 
 
+% 1.a (S Wong 2009 paper)
+% (8) Modified Burst Index (MBI)
+% MBI is the ratio of the number of interspike intervals less than 10 ms
+% to the number greater than 10 ms.
+
 
 
 

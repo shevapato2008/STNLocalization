@@ -132,7 +132,6 @@ for i = 1 : 53
     for j = 1 : 13
         newX(:, j) = outlierDetect(X(:, j), 20);
     end
-    newX(:, 14) = X(:, 14);
     save(['Data\Feature\featureMatrix_rmoutlier' num2str(i) '.mat'], ...
         'newX', '-v7.3');
 end
@@ -257,7 +256,7 @@ location = ["[2010-01-07] [Left] [Pass 1] [Center]", ...
             "[2011-07-05] [Left] [Pass 1] [Center]", ...
             "[2011-07-05] [Right] [Pass 1] [Center]", ...
             "[2011-08-16] [Left] [Pass 1] [Center]", ...
-            "[2011-08-16] [Right] [Pass 1] [Center]"];
+            "[2011-08-16] [Right] [Pass 1] [Center]"];        
 
 for i = 1 : 53
     plotFeatureMaps(i, ...
@@ -287,39 +286,74 @@ end
 
 %% 3.1 K-means clustering
 
-% 3.1.1 with transformation
-for i = 1 : 53
+% Add depth (with different scales) as a dimension
+for SCALE = 1 : 5
+    
+    disp(['Generating normalized feature matrices with depth scale = ' ...
+        num2str(SCALE) '...']);
+    
+    for i = 1
+        X = importdata(['Data\Feature\normFeatureMatrix' num2str(i) '.mat']);
 
-    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
-    [idx, C, sumd, D] = kMeansClustering( ...
-        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
-        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
-        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+        % load depth epoch matrix
+        depthEpoch = importdata(['Data\Epoch\depth' num2str(i) 'Epoch.mat']);
 
-    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
-    epochNum = size(X, 1);
+        % get depth vector by averaging depths in each period
+        depthVector = zeros(size(depthEpoch, 1), 1);
+        for j = 1 : size(depthEpoch, 1)
+            depthVector(j) = mean(depthEpoch(j, :));
+        end
 
-    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
-    plotGroupSeries(epochNum, idx, ...
-        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-        i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
-        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
+        % normalization
+        MAX = max(depthVector);
+        MIN = min(depthVector);
+        for j = 1 : length(depthVector)
+            depthVector(j) = (depthVector(j) - MIN) / (MAX - MIN);
+        end
 
-% take a majority vote to smooth the output
-%     newIdx = majorityVote(idx, 10);
-%     
-%     plotGroupSeries(epochNum, newIdx, ...
-%     ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-%     i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
-%     ['Figures\K-Means\' num2str(i) '.2.1.groupSeries_majvot.bmp']);
+        % attach the length vector to the last column of the feature matrix
+        for j = 1 : size(X, 1)
+            X(j, 14) = SCALE * depthVector(j);
+        end
 
+        disp(['Saving featureMatrix' num2str(i) '...']);
+        save(['Data\Feature\normFeatureMatrix' num2str(i) '_depthScale' num2str(SCALE) '.mat'], ...
+            'X', '-v7.3');
+    end
+    
 end
 
-% 3.1.2 no transformation
+
+% evaluate the optimal k for k-means
+optimalK = zeros(53, 3);
+
+for i = 1 : 53
+    
+    X = importdata(['Data\Feature\normFeatureMatrix' num2str(i) '_depthScale3.mat']);
+    
+    disp(['Calculating optimal k for group ' num2str(i) '...']);
+
+    % Calinski-Harabasz Criterion
+    eva1 = evalclusters(X, 'kmeans', 'CalinskiHarabasz', 'KList', [1 : 6]);
+    optimalK(i, 1) = eva1.OptimalK;
+    
+    % Silhouette Criterion
+    eva2 = evalclusters(X, 'kmeans', 'silhouette', 'KList', [1 : 6]);
+    optimalK(i, 2) = eva2.OptimalK;
+    
+    % Gap Criterion
+    eva3 = evalclusters(X, 'kmeans', 'gap', 'KList', [1 : 6]);
+    optimalK(i, 3) = eva3.OptimalK;
+    
+end
+
+
+
+% 3.1.1 no transformation and fixed k (k = 4)
 for i = 1 : 53
     
     disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
-    [idx, C, sumd, D] = kMeansClustering( ...
+    [idx, C, sumd, D] = kMeansClustering(4, ...
         ['Data\Feature\normFeatureMatrix_notrans' num2str(i) '.mat'], ...
         ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
         i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
@@ -345,16 +379,235 @@ end
 
 
 
-% Take a "majority vote" based on neighboring points in order to remove
-% some noise. This mimics the way a KNN classifier works.
-armlength = 10;
-winSize = armlength * 2 + 1;
+% 3.1.2 with transformation and fixed k (k = 4)
 
-for i = (armlength + 1) : (length(vector) - armlength)
-    low = i - armlength;    % starting index of the window
-    high = i + armlength;   % ending index of the window
-    window = vector(low : high);
+% (1) no depth involved
+for i = 1 : 53
+
+    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    [idx, C, sumd, D] = kMeansClustering(4, ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
+        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
+
 end
+
+% (2) with different depth scales
+for i = 1 : 53
+    disp(['For Group ' num2str(i)]);
+    
+    for SCALE = 1 : 5
+        disp(['depth scale = ' num2str(SCALE)]);
+        
+        disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+        [idx, C, sumd, D] = kMeansClustering(4, ...
+            ['Data\Feature\normFeatureMatrix' num2str(i) '_depthScale' num2str(SCALE) '.mat'], ...
+            ['Figures\K-Means\' num2str(i) '.1.k-Means_depthScale' num2str(SCALE) '.bmp'], ...
+            i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+        X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+        epochNum = size(X, 1);
+
+        disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+        plotGroupSeries(epochNum, idx, ...
+            ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+            i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+            ['Figures\K-Means\' num2str(i) '.2.groupSeries_depthScale' num2str(SCALE) '.bmp']);
+    end
+    
+end
+
+
+% 3.1.3 with transformation and optimal k
+% (1) Calinski-Harabasz Criterion
+for i = 1 : 53
+    
+    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    [idx, C, sumd, D] = kMeansClustering(optimalK(i, 1), ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
+        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), optimalK(i, 1), ...
+        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
+
+end
+
+% (2) Silouette Criterion
+for i = 1 : 53
+    
+    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    [idx, C, sumd, D] = kMeansClustering(optimalK(i, 2), ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
+        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), optimalK(i, 2), ...
+        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
+
+end
+
+
+% (2) Gap Criterion
+for i = 1 : 53
+    
+    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    [idx, C, sumd, D] = kMeansClustering(optimalK(i, 2), ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
+        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), optimalK(i, 2), ...
+        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
+
+end
+
+
+
+% 3.1.4 transform + outlier detect + fixed k (k = 4) + weight + depth
+
+% Setup and apply weights to the normalized feature matrix
+weight = [1, ...      % MISI
+          1, ...      % SISI
+          0.5, ...    % CVISI
+          1, ...      % PS
+          1, ...      % BR
+          0.5, ...    % PB
+          1, ...      % FR
+          2, ...      % CL
+          0.5, ...    % Threshold
+          0.5, ...    % Peaks
+          2, ...      % RMSA
+          2, ...      % ANE
+          0.5];       % ZC
+
+for i = 1 : 53
+    disp(['Creating weighted feature matrix ' num2str(i) '...']);
+    getWeightedFeatureMatrix(weight, ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\weightedFeatureMatrix' num2str(i) '.mat'])
+end
+
+% (1) without weight
+for i = 1 : 53
+
+    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    [idx, C, sumd, D] = kMeansClustering(4, ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
+        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
+
+end
+
+% (2) weighted
+for i = 1 : 53
+
+    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    [idx, C, sumd, D] = kMeansClustering(4, ...
+        ['Data\Feature\weightedFeatureMatrix' num2str(i) '.mat'], ...
+        ['Figures\K-Means\' num2str(i) '.1.k-Means_weighted.bmp'], ...
+        i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+    epochNum = size(X, 1);
+
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    plotGroupSeries(epochNum, idx, ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+        ['Figures\K-Means\' num2str(i) '.2.groupSeries_weighted.bmp']);
+
+end
+
+% (3) weighted + depth
+weight_depth=[1, ...      % MISI
+              1, ...      % SISI
+              0.5, ...    % CVISI
+              1, ...      % PS
+              1, ...      % BR
+              0.5, ...    % PB
+              1, ...      % FR
+              2, ...      % CL
+              0.5, ...    % Threshold
+              0.5, ...    % Peaks
+              2, ...      % RMSA
+              2, ...      % ANE
+              0.5, ...    % ZC
+              1];         % Depth
+
+for i = 1 : 53
+    for DEPTHSCALE = 1 : 5
+        disp(['Creating weighted feature matrix ' num2str(i) '...']);
+        getWeightedFeatureMatrix(weight_depth, ...
+            ['Data\Feature\normFeatureMatrix' num2str(i) '_depthScale' num2str(DEPTHSCALE) '.mat'], ...
+            ['Data\Feature\weightedFeatureMatrix' num2str(i) '_depthScale' num2str(DEPTHSCALE) '.mat'])
+    end
+end
+
+
+for i = 1 : 53
+    
+    for DEPTHSCALE = 1 : 5
+        
+        disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+        [idx, C, sumd, D] = kMeansClustering(4, ...
+            ['Data\Feature\weightedFeatureMatrix' num2str(i) '_depthScale' num2str(DEPTHSCALE) '.mat'], ...
+            ['Figures\K-Means\' num2str(i) '.1.k-Means_weighted_depthScale' num2str(DEPTHSCALE) '.bmp'], ...
+            i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
+
+        X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+        epochNum = size(X, 1);
+
+        disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+        plotGroupSeries(epochNum, idx, ...
+            ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+            i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+            ['Figures\K-Means\' num2str(i) '.2.groupSeries_weighted_depthScale' num2str(DEPTHSCALE) '.bmp']);
+        
+    end
+
+end
+
+
+
+
+
 
 
 %% 3.2 Hierarchical Clustering

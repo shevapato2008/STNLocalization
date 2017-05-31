@@ -206,11 +206,6 @@ for i = 1 : numEpoch
     
 end
 
-% (4) Add "time" as the last dimension
-for i = 1 : numEpoch
-    featureMatrix(i, numFeatures + 1) = sif.curv_len(hpfSignalEpoch(i, :));
-end
-
 
 disp(['Saving featureMatrix' num2str(index) '...']);
 save(featureMatrixPath, 'featureMatrix', '-v7.3');

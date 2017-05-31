@@ -1,5 +1,5 @@
 function [ output_args ] = plotGroupSeries(epochNum, groupidx, ...
-    depthEpochPath, index, location, STNENTRY, STNEXIT, numGroup, groupSeriesPath)
+    depthEpochPath, index, location, STNENTRY, STNEXIT, numCluster, groupSeriesPath)
 % Function plotGroup() plots the grouping results with time.
 
 for i = 1 : length(groupidx)
@@ -27,7 +27,7 @@ end
 
 f = figure('visible', 'off');
 bar(idx1, 'cyan');
-addPatch(time1, time2, 0, numGroup);     % add a patch
+addPatch(time1, time2, 0, numCluster);	% add a patch
 h = title({['K-means Clustering for MER ' num2str(index)], ...
               location(index), ...
               ['STN Entry: ' num2str(STNENTRY)], ...
