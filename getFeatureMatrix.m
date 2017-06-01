@@ -43,6 +43,17 @@ for i = 1 : numEpoch
     featureMatrix(i, 6) = sdf.pb(spikeLocs);
     % (1.7) Firing Rate (FR)
     featureMatrix(i, 7) = sdf.fr(spikeLocs, transpose(hpfSignalEpoch(i, :)), 48000);
+    % (1.8) Modified Burst Index (MBI)
+    featureMatrix(i, 8) = sdf.mbi(spikeLocs);
+    % (1.9) Pause Index (PI)
+    featureMatrix(i, 9) = sdf.pi(spikeLocs);
+    % (1.10) Pause Ratio (PR)
+    featureMatrix(i, 10) = sdf.pr(spikeLocs);
+    % (1.11) Spike Count (SC)
+    featureMatrix(i, 11) = sdf.sc(spikeLocs);
+    % (1.12) Mean Spike Amplitude Differential (MSAD)
+    featureMatrix(i, 12) = sdf.msad(spikeAmpls);
+    
 end
 
 
@@ -56,17 +67,17 @@ sif = spikeIndepFeatures;
 for i = 1 : numEpoch
     
     % (2.1) Curve length
-    featureMatrix(i, 8) = sif.curv_len(hpfSignalEpoch(i, :));
+    featureMatrix(i, 13) = sif.curv_len(hpfSignalEpoch(i, :));
     % (2.2) Threshold
-    featureMatrix(i, 9) = sif.thrshld(hpfSignalEpoch(i, :));
+    featureMatrix(i, 14) = sif.thrshld(hpfSignalEpoch(i, :));
     % (2.3) Peaks
-    featureMatrix(i, 10) = sif.peaks(hpfSignalEpoch(i, :));
+    featureMatrix(i, 15) = sif.peaks(hpfSignalEpoch(i, :));
     % (2.4) Root mean square amplitude
-    featureMatrix(i, 11) = sif.rmsa(hpfSignalEpoch(i, :));
+    featureMatrix(i, 16) = sif.rmsa(hpfSignalEpoch(i, :));
     % (2.5) Average nonlinear energy
-    featureMatrix(i, 12) = sif.avg_nonlnr_energy(hpfSignalEpoch(i, :));
+    featureMatrix(i, 17) = sif.avg_nonlnr_energy(hpfSignalEpoch(i, :));
     % (2.6) Zero crossings
-    featureMatrix(i, 13) = sif.zero_crossing(hpfSignalEpoch(i, :));
+    featureMatrix(i, 18) = sif.zero_crossing(hpfSignalEpoch(i, :));
     
 end
 
@@ -75,13 +86,13 @@ end
 disp('Creating lfp-based features...')
 
 % load lfp-related signals
-alphaSignalEpoch = importdata(alphaSignalEpochPath);        % alpha signal 9Hz - 11Hz
-betaSignalEpoch = importdata(betaSignalEpochPath);          % beta signal 13Hz - 30Hz
-deltaSignalEpoch = importdata(deltaSignalEpochPath);        % delta signal 1Hz - 4Hz
-infraSlowSignalEpoch = importdata(infraSlowSignalEpochPath);% infra-slow signal 0Hz - 1Hz
-thetaSignalEpoch = importdata(thetaSignalEpochPath);        % theta signal 4Hz - 8Hz
-lowGammaSignalEpoch = importdata(lowGammaSignalEpochPath);	% low gamma signal 30Hz - 50Hz
-highGammaSignalEpoch = importdata(highGammaSignalEpochPath);% high gamma signal 50Hz - 90Hz
+alphaSignalEpoch = importdata(alphaSignalEpochPath);            % alpha signal 9Hz - 11Hz
+betaSignalEpoch = importdata(betaSignalEpochPath);              % beta signal 13Hz - 30Hz
+deltaSignalEpoch = importdata(deltaSignalEpochPath);            % delta signal 1Hz - 4Hz
+infraSlowSignalEpoch = importdata(infraSlowSignalEpochPath);    % infra-slow signal 0Hz - 1Hz
+thetaSignalEpoch = importdata(thetaSignalEpochPath);            % theta signal 4Hz - 8Hz
+lowGammaSignalEpoch = importdata(lowGammaSignalEpochPath);      % low gamma signal 30Hz - 50Hz
+highGammaSignalEpoch = importdata(highGammaSignalEpochPath);    % high gamma signal 50Hz - 90Hz
 
 % Load function handle of lfp dependent features
 ldf = lfpDepFeatures;
