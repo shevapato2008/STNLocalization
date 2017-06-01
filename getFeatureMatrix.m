@@ -19,14 +19,14 @@ hpfSignalEpoch = importdata(hpfSignalEpochPath);
 numEpoch = size(hpfSignalEpoch, 1);
 
 % Create empty feature matrix
-featureMatrix = zeros(numEpoch, numFeatures + 1);
+featureMatrix = zeros(numEpoch, numFeatures);
 
 % Load function handle of spike dependent features
 sdf = spikeDepFeatures;
 
 for i = 1 : numEpoch
     % spike detection
-    spikeLocs = spikeDetection(transpose(hpfSignalEpoch(i, :)));
+    [spikeLocs, spikeAmpls] = spikeDetection(transpose(hpfSignalEpoch(i, :)));
     % [spikeLocs, spikeAmpls, spikes] = spikeDetection(transpose(hpfSignalEpoch(i, :)));
     
     % (1.1) Mean Inter-Spike Interval (MISI)
