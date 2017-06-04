@@ -33,68 +33,103 @@ for i = 2 : length(depthMean)
 end
 
 
-% (1) feature map for spike dependent features
+% (1.1) feature map for spike dependent features
 
 f = figure('visible', 'off');
 
-ax(1) = subplot(4, 2, 1);
+ax(1) = subplot(5, 3, 1);
 plot(time, normFeatureMatrix(:, 1));
-xlabel('Time (s)')
-ylabel('MISI')
-title('Mean Inter-Spike Interval (MISI)')
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('MISI', 'FontSize', 8);
+title('Mean Inter-Spike Interval (MISI)', 'FontSize', 8);
 addPatch(x1, x2, 0, 1);     % add a patch
 
-ax(2) = subplot(4, 2, 2);
+ax(2) = subplot(5, 3, 2);
 plot(time, normFeatureMatrix(:, 2))
-xlabel('Time (s)')
-ylabel('SISI')
-title('Inter-Spike Interval Standard Deviation (SISI)')
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('SISI', 'FontSize', 8);
+title('Inter-Spike Interval Standard Deviation (SISI)', 'FontSize', 8);
 addPatch(x1, x2, 0, 1);     % add a patch
 
-ax(3) = subplot(4, 2, 3);
+ax(3) = subplot(5, 3, 3);
 plot(time, normFeatureMatrix(:, 3));
-xlabel('Time (s)')
-ylabel('CVISI')
-title('Inter-Spike Interval Coefficient of Variation (CVISI)');
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('CVISI', 'FontSize', 8);
+title('Inter-Spike Interval Coefficient of Variation (CVISI)', 'FontSize', 8);
 addPatch(x1, x2, 0, 1);     % add a patch
 
-ax(4) = subplot(4, 2, 4);
+ax(4) = subplot(5, 3, 4);
 plot(time, normFeatureMatrix(:, 4));
-xlabel('Time (s)')
-ylabel('PS')
-title('Percentage of Spikes in the Spike Signal (PS)');
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('PS', 'FontSize', 8);
+title('Percentage of Spikes in the Spike Signal (PS)', 'FontSize', 8);
 addPatch(x1, x2, 0, 1);     % add a patch
 
-ax(5) = subplot(4, 2, 5);
+ax(5) = subplot(5, 3, 5);
 plot(time, normFeatureMatrix(:, 5));
-xlabel('Time (s)')
-ylabel('BR')
-title('Bursting Rate (BR)');
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('BR', 'FontSize', 8);
+title('Bursting Rate (BR)', 'FontSize', 8);
 addPatch(x1, x2, 0, 1);     % add a patch
 
-ax(6) = subplot(4, 2, 6);
+ax(6) = subplot(5, 3, 6);
 plot(time, normFeatureMatrix(:, 6));
-xlabel('Time (s)')
-ylabel('PB')
-title('Percentage of Bursts (PB)');
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('PB', 'FontSize', 8);
+title('Percentage of Bursts (PB)', 'FontSize', 8);
 addPatch(x1, x2, 0, 1);     % add a patch
 
-ax(7) = subplot(4, 2, 7);
+ax(7) = subplot(5, 3, 7);
 plot(time, normFeatureMatrix(:, 7));
-xlabel('Time (s)')
-ylabel('FR')
-title('Firing Rate (FR)');
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('FR', 'FontSize', 8);
+title('Firing Rate (FR)', 'FontSize', 8);
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(8) = subplot(5, 3, 8);
+plot(time, normFeatureMatrix(:, 8));
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('MBI', 'FontSize', 8);
+title('Modified Burst Index (MBI)', 'FontSize', 8);
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(9) = subplot(5, 3, 9);
+plot(time, normFeatureMatrix(:, 9))
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('PI', 'FontSize', 8);
+title('Pause Index (PI)', 'FontSize', 8);
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(10) = subplot(5, 3, 10);
+plot(time, normFeatureMatrix(:, 10));
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('PR', 'FontSize', 8);
+title('Pause Ratio (PR)', 'FontSize', 8);
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(11) = subplot(5, 3, 11);
+plot(time, normFeatureMatrix(:, 11));
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('SC', 'FontSize', 8);
+title('Spike Count (SC)', 'FontSize', 8);
+addPatch(x1, x2, 0, 1);     % add a patch
+
+ax(12) = subplot(5, 3, 12);
+plot(time, normFeatureMatrix(:, 12));
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('MSAD', 'FontSize', 8);
+title('Mean Spike Amplitude Differential (MSAD)', 'FontSize', 8);
 addPatch(x1, x2, 0, 1);     % add a patch
 
 % depth map
-ax(8) = subplot(4, 2, 8);
+ax(13) = subplot(5, 3, 13);
 plot(time, depthMean);
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on')
 grid on
 grid minor
-xlabel('Time (s)')
-ylabel('Milimeters Above Target')
-title('Depth Map');
+xlabel('Time (s)', 'FontSize', 8);
+ylabel('Milimeters Above Target', 'FontSize', 8);
+title('Depth Map', 'FontSize', 8);
 addPatch(0, timeScale, STNENTRY, STNEXIT);	% add a patch
 
 h = suptitle({['Spike Dependent Features for MER ' num2str(index)], ...
@@ -114,47 +149,48 @@ saveFigure(f, imagePath1);
 close all
 
 
+
 % (2) feature map for spike independent features
 
 f = figure('visible', 'off');
 
 ax(1) = subplot(4, 2, 1);
-plot(time, normFeatureMatrix(:, 8));
+plot(time, normFeatureMatrix(:, 13));
 xlabel('Time (s)')
 ylabel('CL')
 title('Curve Length (CL)')
 addPatch(x1, x2, 0, 1);     % add a patch
 
 ax(2) = subplot(4, 2, 2);
-plot(time, normFeatureMatrix(:, 9));
+plot(time, normFeatureMatrix(:, 14));
 xlabel('Time (s)')
 ylabel('Threshold')
 title('Threshold')
 addPatch(x1, x2, 0, 1);     % add a patch
 
 ax(3) = subplot(4, 2, 3);
-plot(time, normFeatureMatrix(:, 10));
+plot(time, normFeatureMatrix(:, 15));
 xlabel('Time (s)')
 ylabel('Peaks')
 title('Peaks')
 addPatch(x1, x2, 0, 1);     % add a patch
 
 ax(4) = subplot(4, 2, 4);
-plot(time, normFeatureMatrix(:, 11));
+plot(time, normFeatureMatrix(:, 16));
 xlabel('Time (s)')
 ylabel('RMSA')
 title('Root mean square amplitude')
 addPatch(x1, x2, 0, 1);     % add a patch
 
 ax(5) = subplot(4, 2, 5);
-plot(time, normFeatureMatrix(:, 12));
+plot(time, normFeatureMatrix(:, 17));
 xlabel('Time (s)')
 ylabel('ANE')
 title('Average nonlinear energy')
 addPatch(x1, x2, 0, 1);     % add a patch
 
 ax(6) = subplot(4, 2, 6);
-plot(time, normFeatureMatrix(:, 13));
+plot(time, normFeatureMatrix(:, 18));
 xlabel('Time (s)')
 ylabel('ZC')
 title('Zero crossings')
@@ -188,7 +224,7 @@ saveFigure(f, imagePath2);
 close all
 
 
-
+%{
 % (3) feature maps for lfp-based features
 
 % lfp-related band-pass signals
@@ -264,7 +300,7 @@ saveFigure(f, char(image3Path));
 close all
 
 end
-
+%}
 
 
 end

@@ -1,4 +1,4 @@
-%% Spike Indepdent Features %%
+%% Spike Depdent Features %%
 
 % Create a function handle to call feature functions %
 function fh = spikeDepFeatures
@@ -11,8 +11,16 @@ function fh = spikeDepFeatures
     fh.br = @burstRate;             % BR:       Bursting Rate
     fh.pb = @percentBurst;          % PB:       Percentage of Spikes Fired in Bursts
     fh.fr = @firingRate;            % FR:       Firing Rate
+    
+    
+    fh.mbi = @modifiedBurstIndex;   % MBI:      Modified Burst Index
+    fh.pi = @pauseIndex;            % PI:       Pause Index
+    fh.pr = @pauseRatio;            % PR:       Pause Ratio
+    fh.sc = @spikeCount;            % SC:       Spike Count
+    fh.msad = @msad;                % MSAD:     Mean Spike Amplitude Differential
 end
 
+%% The list on the proposal %%
 
 % (1) Mean Inter-Spike Interval (MISI) % 
 % Source: Lin Chen et. al. 2009 Progress in Natural Science
@@ -208,10 +216,111 @@ function output = firingRate(spikeLocs, signal, samplingRate)
 end
 
 
-% 1.a (S Wong 2009 paper)
+
+%% 1.a (Dr. Stephen Wong's 2009 paper) %%
+
 % (8) Modified Burst Index (MBI)
 % MBI is the ratio of the number of interspike intervals less than 10 ms
 % to the number greater than 10 ms.
+function output = modifiedBurstIndex(spikeLocs)
+    numISIsm = 0;      % counter for small interspike interval
+    numISIlg = 0;      % counter for large interspike interval
+    for i = 2 : length(spikeLocs)
+        if (spikeLocs(i) - spikeLocs(i - 1)) < 4 * (48000 / 1000)
+            numISIsm = numISIsm + 1;
+        elseif (spikeLocs(i) - spikeLocs(i - 1)) >= 4 * (48000 / 1000)
+            numISIlg = numISIlg + 1;
+        end
+    end
+    output = numISIsm / numISIlg;
+end
+
+
+% (9) Pause Index (PI)
+% PI is the ratio of the number of inter-spike intervals greater than 
+% 50 ms to the number less than 50 ms.
+
+function output = pauseIndex(spikeLocs)
+    numISIsm = 0;      % counter for small interspike interval
+    numISIlg = 0;      % counter for large interspike interval
+    for i = 2 : length(spikeLocs)
+        currISI = spikeLocs(i) - spikeLocs(i - 1);
+        if currISI < 50 * (48000 / 1000)
+            numISIsm = numISIsm + 1;
+        elseif currISI >= 50 * (48000 / 1000)
+            numISIlg = numISIlg + 1;
+        end
+    end
+    
+    if numISIsm == 0
+        output = NaN;
+    else
+        output = numISIlg / numISIsm;
+    end
+end
+
+
+% (10) Pause Ratio (PR)
+% PR is the ratio of cumulative time of inter-spike intervals greater than
+% 50 ms to the cumulative time of those less than 50 ms.
+function output = pauseRatio(spikeLocs)
+    sumISIsm = 0;      % counter for small interspike interval
+    sumISIlg = 0;      % counter for large interspike interval
+    for i = 2 : length(spikeLocs)
+        currISI = spikeLocs(i) - spikeLocs(i - 1);
+        if currISI < 50 * (48000 / 1000)
+            sumISIsm = sumISIsm + currISI;
+        elseif currISI >= 50 * (48000 / 1000)
+            sumISIlg = sumISIlg + currISI;
+        end
+    end
+    
+    if sumISIsm == 0
+        output = NaN;
+    else
+        output = sumISIlg / sumISIsm;
+    end
+end
+
+
+% (*) Spike Fraction (SF)
+% SF is the percentage of spikes accepted as genuine spikes amongst
+% candidate spikes by our spike detector.
+
+
+% (11) Spike Count (SC)
+% SC is the number of spikes detected by the spike detection process
+% outlined above.
+function output = spikeCount(spikeLocs)
+    output = length(spikeLocs);
+end
+
+
+% (12) Mean Spike Amplitude Differential (MSAD)
+% MSAD is the 80% trimmed mean of the difference between consecutive
+% spike amplitudes.
+function output = msad(spikeAmpls)
+    numSpike = length(spikeAmpls);
+    diff = zeros(numSpike - 1, 1);
+    for i = 1 : (numSpike - 1)
+        diff(i) = spikeAmpls(i + 1) - spikeAmpls(i);
+    end
+    
+    TEN_PRCNTILE = prctile(diff, 10);
+    NINTY_PRCNTILE = prctile(diff, 90);
+    sum = 0;
+    count = 0;
+    for i = 1 : (numSpike - 1)
+        % trim 10% from top and bottom respectively
+        if diff(i) >= TEN_PRCNTILE && diff(i) <= NINTY_PRCNTILE
+            sum = sum + diff(i);
+            count = count + 1;
+        end
+    end
+    output = sum / count;
+end
+
+
 
 
 

@@ -6,7 +6,7 @@ cd('S:\Google Drive\Rutgers University\Research\DBS\Project\Matlab\Program')
 
 %% 1.1 Generate feature matrices
 for i = 1 : 53
-    getFeatureMatrix(i, 13, ...
+    getFeatureMatrix(i, 18, ...
         ['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\alphaSignal' num2str(i) 'Epoch.mat'], ...
         ['Data\Epoch\betaSignal' num2str(i) 'Epoch.mat'], ...
@@ -18,6 +18,7 @@ for i = 1 : 53
     	['Data\Feature\featureMatrix' num2str(i) '.mat'], ...
         ['Data\Feature\lfpFeatureMatrix' num2str(i) '.mat'])
 end
+
 
 
 %% 1.2 Take transformations (sqrt) to make variables more normally distributed
@@ -38,8 +39,10 @@ end
 % Transformation
 for i = 1 : 53
     
+    disp(['Transforming feature matrix ' num2str(i)]);
+    
     % right skewed feature list
-    featureList = [1, 2, 3, 4, 5, 7, 8, 9, 11, 12];
+    featureList = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 13, 14, 16, 17];
     
     transformFeatures(featureList, ...
         ['Data\Feature\featureMatrix' num2str(i) '.mat'], ...
@@ -78,16 +81,18 @@ vectorY7 = outlierDetect(vectorX, 7);
 
 % use sliding window to eliminate "outliers"
 for i = 1 : 53
+    
+    disp(['Removing outliers for feature matrix ' num2str(i) '...']);
     X = importdata(['Data\Feature\transformFeatureMatrix' num2str(i) '.mat']);
     newX = zeros(size(X));
-    for j = 1 : 13
+    for j = 1 : size(X, 2)
         newX(:, j) = outlierDetect(X(:, j), 20);
     end
-    newX(:, 14) = X(:, 14);
     save(['Data\Feature\transformFeatureMatrix_rmoutlier' num2str(i) '.mat'], ...
         'newX', '-v7.3');
 end
 
+% normalization
 for i = 1 : 53
     
     % high-pass filtered signal features
@@ -127,9 +132,11 @@ end
 
 % use sliding window to eliminate "outliers"
 for i = 1 : 53
+    
+    disp(['Removing outliers for feature matrix ' num2str(i) '...']);
     X = importdata(['Data\Feature\featureMatrix' num2str(i) '.mat']);
     newX = zeros(size(X));
-    for j = 1 : 13
+    for j = 1 : size(X, 2)
         newX(:, j) = outlierDetect(X(:, j), 20);
     end
     save(['Data\Feature\featureMatrix_rmoutlier' num2str(i) '.mat'], ...
@@ -258,6 +265,7 @@ location = ["[2010-01-07] [Left] [Pass 1] [Center]", ...
             "[2011-08-16] [Left] [Pass 1] [Center]", ...
             "[2011-08-16] [Right] [Pass 1] [Center]"];        
 
+% (06/01/2017 Added 5 more features from Dr. Wong's 2009 paper)
 for i = 1 : 53
     plotFeatureMaps(i, ...
         ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
@@ -269,13 +277,16 @@ for i = 1 : 53
         location, STNBounds(i, 1), STNBounds(i, 2));
 end
 
-% no transformation 05/23/2017
+% no transformation (05/23/2017)
+% (06/01/2017 Added 5 more features from Dr. Wong's 2009 paper)
 for i = 1 : 53
     plotFeatureMaps(i, ...
         ['Data\Feature\normFeatureMatrix_notrans' num2str(i) '.mat'], ...
+        ['Data\Feature\normlfpFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-        ['Figures\ActivityMap\' num2str(i) 'normFeatureMap_sdf.bmp'], ...
-        ['Figures\ActivityMap\' num2str(i) 'normFeatureMap_sif.bmp'], ...
+        ['Figures\ActivityMap\NoTrans\' num2str(i) 'normFeatureMap_sdf.bmp'], ...
+        ['Figures\ActivityMap\NoTrans\' num2str(i) 'normFeatureMap_sif.bmp'], ...
+        "Figures\ActivityMap\lfp\", ...
         location, STNBounds(i, 1), STNBounds(i, 2));
 end
 
@@ -292,8 +303,15 @@ for SCALE = 1 : 5
     disp(['Generating normalized feature matrices with depth scale = ' ...
         num2str(SCALE) '...']);
     
-    for i = 1
+    for i = 1 : 53
+        
+        disp(['Adding depth vector to normalized feature matrix ' ...
+            num2str(i) ' ...']);
+        
+        % load normalized feature matrix
         X = importdata(['Data\Feature\normFeatureMatrix' num2str(i) '.mat']);
+        numEpoch = size(X, 1);
+        numFeature = size(X, 2);
 
         % load depth epoch matrix
         depthEpoch = importdata(['Data\Epoch\depth' num2str(i) 'Epoch.mat']);
@@ -311,14 +329,14 @@ for SCALE = 1 : 5
             depthVector(j) = (depthVector(j) - MIN) / (MAX - MIN);
         end
 
-        % attach the length vector to the last column of the feature matrix
-        for j = 1 : size(X, 1)
-            X(j, 14) = SCALE * depthVector(j);
+        % attach the depth vector to the last column of the feature matrix
+        for j = 1 : numEpoch
+            X(j, numFeature + 1) = SCALE * depthVector(j);
         end
 
-        disp(['Saving featureMatrix' num2str(i) '...']);
-        save(['Data\Feature\normFeatureMatrix' num2str(i) '_depthScale' num2str(SCALE) '.mat'], ...
-            'X', '-v7.3');
+        disp(['Saving feature matrix ' num2str(i) ' ...']);
+        save(['Data\Feature\normFeatureMatrix' num2str(i) '_depthScale' ...
+            num2str(SCALE) '.mat'], 'X', '-v7.3');
     end
     
 end
@@ -352,20 +370,21 @@ end
 % 3.1.1 no transformation and fixed k (k = 4)
 for i = 1 : 53
     
-    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    disp(['Generating and saving the K-Means clustering figure ' ...
+        num2str(i) ' ...']);
     [idx, C, sumd, D] = kMeansClustering(4, ...
         ['Data\Feature\normFeatureMatrix_notrans' num2str(i) '.mat'], ...
-        ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
+        ['Figures\K-Means\NoTrans\' num2str(i) '.1.k-Means.bmp'], ...
         i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
     
     X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
     epochNum = size(X, 1);
     
-    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    disp(['Generating and saving the grouping plot ' num2str(i) ' ...']);
     plotGroupSeries(epochNum, idx, ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
-        ['Figures\K-Means\' num2str(i) '.2.groupSeries.bmp']);
+        ['Figures\K-Means\NoTrans\' num2str(i) '.2.groupSeries.bmp']);
       
 % take a majority vote to smooth the output
 %     newIdx = majorityVote(idx, 10);
@@ -384,7 +403,8 @@ end
 % (1) no depth involved
 for i = 1 : 53
 
-    disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+    disp(['Generating and saving the K-Means clustering figure ' ...
+        num2str(i) ' ...']);
     [idx, C, sumd, D] = kMeansClustering(4, ...
         ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
         ['Figures\K-Means\' num2str(i) '.1.k-Means.bmp'], ...
@@ -393,7 +413,7 @@ for i = 1 : 53
     X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
     epochNum = size(X, 1);
 
-    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    disp(['Generating and saving the grouping plot ' num2str(i) ' ...']);
     plotGroupSeries(epochNum, idx, ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
@@ -408,10 +428,13 @@ for i = 1 : 53
     for SCALE = 1 : 5
         disp(['depth scale = ' num2str(SCALE)]);
         
-        disp(['Generating and saving the K-Means clustering figure ' num2str(i) '...']);
+        disp(['Generating and saving the K-Means clustering figure ' ...
+            num2str(i) ' ...']);
         [idx, C, sumd, D] = kMeansClustering(4, ...
-            ['Data\Feature\normFeatureMatrix' num2str(i) '_depthScale' num2str(SCALE) '.mat'], ...
-            ['Figures\K-Means\' num2str(i) '.1.k-Means_depthScale' num2str(SCALE) '.bmp'], ...
+            ['Data\Feature\normFeatureMatrix' num2str(i) '_depthScale' ...
+                num2str(SCALE) '.mat'], ...
+            ['Figures\K-Means\' num2str(i) '.1.k-Means_depthScale' ...
+                num2str(SCALE) '.bmp'], ...
             i, 4, 8, location, STNBounds(i, 1), STNBounds(i, 2));
 
         X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
@@ -421,7 +444,8 @@ for i = 1 : 53
         plotGroupSeries(epochNum, idx, ...
             ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
             i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
-            ['Figures\K-Means\' num2str(i) '.2.groupSeries_depthScale' num2str(SCALE) '.bmp']);
+            ['Figures\K-Means\' num2str(i) '.2.groupSeries_depthScale' ...
+                num2str(SCALE) '.bmp']);
     end
     
 end

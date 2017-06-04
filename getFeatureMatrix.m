@@ -1,4 +1,4 @@
-function [ output_args ] = getFeatureMatrix(index, numFeatures, ...
+function [ output_args ] = getFeatureMatrix(index, numFeature, ...
     hpfSignalEpochPath, alphaSignalEpochPath, ...
     betaSignalEpochPath, deltaSignalEpochPath, ...
     infraSlowSignalEpochPath, thetaSignalEpochPath, ...
@@ -19,7 +19,7 @@ hpfSignalEpoch = importdata(hpfSignalEpochPath);
 numEpoch = size(hpfSignalEpoch, 1);
 
 % Create empty feature matrix
-featureMatrix = zeros(numEpoch, numFeatures);
+featureMatrix = zeros(numEpoch, numFeature);
 
 % Load function handle of spike dependent features
 sdf = spikeDepFeatures;
@@ -82,6 +82,7 @@ for i = 1 : numEpoch
 end
 
 
+%{
 % (3) lfp-based features
 disp('Creating lfp-based features...')
 
@@ -216,13 +217,28 @@ for i = 1 : numEpoch
     lfpFeatureMatrix(i, 35) = ldf.zerocrossxw(highGammaSignalEpoch(i, :));
     
 end
+%}
+
+
+% (4) Deal with missing values: last observation carried forward
+for j = 1 : numFeature
+    for i = 1 : numEpoch
+        if i == 1 && isnan(featureMatrix(i, j))
+            featureMatrix(i, j) = 0;
+        elseif isnan(featureMatrix(i, j))
+            featureMatrix(i, j) = featureMatrix(i - 1, j);
+        end
+    end
+end
 
 
 disp(['Saving featureMatrix' num2str(index) '...']);
 save(featureMatrixPath, 'featureMatrix', '-v7.3');
 
+%{
 disp(['Saving lfpFeatureMatrix' num2str(index) '...']);
 save(lfpFeatureMatrixPath, 'lfpFeatureMatrix', '-v7.3');
+%}
 
 end
 

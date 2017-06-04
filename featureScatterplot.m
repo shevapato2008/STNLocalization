@@ -8,11 +8,13 @@ mat = importdata(featurematrixPath);
 
 % generate a scatter plot matrix
 f = figure('visible', 'off');
-[H, AX] = plotmatrix(mat(:, 1 : 13));
+[H, AX] = plotmatrix(mat(:, 1 : 18));
 
 % label the plots
-data_labels = {'MISI', 'SISI', 'CVISI', 'PS', 'BR', 'PB', 'FR', ...
-               'CL', 'Thrhld', 'Peaks', 'RMSA', 'ANE', 'ZC'};
+data_labels = {'MISI', 'SISI', 'CVISI', 'PS', 'BR', ...
+               'PB', 'FR', 'MBI', 'PI', 'PR', ...
+               'SC', 'MSAD', 'CL', 'Thrhld', 'Peaks', ...
+               'RMSA', 'ANE', 'ZC'};
 
 for i = 1 : length(AX)
     ylabel(AX(i, 1), data_labels{i});
