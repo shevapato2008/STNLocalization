@@ -2956,7 +2956,9 @@ clear;
 
 
 
-%% 1.3 Generate filtered data
+%% 1.3.1 Generate filtered data
+
+% 1.3.1 Use O300 filter
 
 % save local field potential (lfp) data to filtered folder
 for i = 1 : 53
@@ -2972,6 +2974,7 @@ for i = 1 : 53
 end
 
 % Apply the filters [Caution: Time Consuming!]
+% (1) O300 Hz filter
 for i = 1 : 53
     
     % load rawRecording and lfpRecording
@@ -2996,6 +2999,25 @@ for i = 1 : 53
     clear;
     
 end
+
+% (2) 500-8000 Hz filter
+for i = 30 : 52
+    
+    % load rawRecording and lfpRecording
+    disp(['Loading rawRecording' num2str(i) '.mat...']);
+    rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
+
+    % generating filtered signals
+    disp(['Generating filtered signals for recordings ' num2str(i) '...']);
+    applyFilters500_8000(rawRecording(:, 2), ...
+        ['Data\Filtered\hpfSignal_500-8000_' num2str(i) '.mat']);
+    
+    % clear memory
+    clear;
+    
+end
+
+
 
 % Check O300 filter efficacy
 % By comparing the frequency maps: rawSignal vs. hpfSignal
