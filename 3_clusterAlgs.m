@@ -1,4 +1,4 @@
-%% 1 K-means clustering
+%% 1. K-means clustering
 
 % Add depth (with different scales) as a dimension
 for SCALE = 1 : 5
