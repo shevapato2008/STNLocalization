@@ -3001,7 +3001,7 @@ for i = 1 : 53
 end
 
 % (2) 500-8000 Hz filter
-for i = 30 : 52
+for i = 50 : 53
     
     % load rawRecording and lfpRecording
     disp(['Loading rawRecording' num2str(i) '.mat...']);
