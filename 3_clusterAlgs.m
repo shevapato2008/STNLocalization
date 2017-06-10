@@ -1,5 +1,118 @@
+
 %% 1. K-means clustering
 
+% STN boundary and location labels
+% create a matrix to load all STN entries and exits
+STNBounds = zeros(53, 2);
+STNBounds(1, :) = [2.95, 0.30];
+STNBounds(2, :) = [2.20, -0.25];
+STNBounds(3, :) = [0.65, -3.82];
+STNBounds(4, :) = [0.47, -3.84];
+STNBounds(5, :) = [-2.19, -6.30];
+STNBounds(6, :) = [5.51, 0.80];
+STNBounds(7, :) = [4.20, -0.40];
+STNBounds(8, :) = [3.80, -1.30];
+STNBounds(9, :) = [5.12, 0.30];
+STNBounds(10, :) = [0.90, -2.50];
+STNBounds(11, :) = [-0.30, -2.50];
+STNBounds(12, :) = [4.20, 0.74];
+STNBounds(13, :) = [2.40, -1.50];   % original: 2.40, -1.60 (min = -1.51)
+STNBounds(14, :) = [4.20, -1.20];
+STNBounds(15, :) = [2.60, 0.70];
+STNBounds(16, :) = [5.60, 1.30];
+STNBounds(17, :) = [6.56, 2.00];
+STNBounds(18, :) = [3.70, 0.00];
+STNBounds(19, :) = [4.80, -0.20];
+STNBounds(20, :) = [4.40, -1.40];
+STNBounds(21, :) = [3.72, -1.72];
+STNBounds(22, :) = [4.50, -0.25];
+STNBounds(23, :) = [5.44, 1.45];
+STNBounds(24, :) = [3.84, -0.20];
+STNBounds(25, :) = [4.30, -0.32];
+STNBounds(26, :) = [1.10, -3.00];
+STNBounds(27, :) = [1.96, -3.50];
+STNBounds(28, :) = [2.55, -1.59];
+STNBounds(29, :) = [2.55, -1.04];
+STNBounds(30, :) = [2.15, -2.50];
+STNBounds(31, :) = [5.94, 1.73];
+STNBounds(32, :) = [4.30, 0.62];
+STNBounds(33, :) = [1.40, 0.30];
+STNBounds(34, :) = [2.50, -2.69];   % original: 2.50, - 2.70 (min -2.698)
+STNBounds(35, :) = [2.40, 0.00];
+STNBounds(36, :) = [4.40, 0.34];
+STNBounds(37, :) = [4.90, -0.15];
+STNBounds(38, :) = [3.11, -0.10];
+STNBounds(39, :) = [4.93, -0.26];
+STNBounds(40, :) = [0.00, -4.00];
+STNBounds(41, :) = [4.36, 0.26];
+STNBounds(42, :) = [1.41, 0.00];
+STNBounds(43, :) = [2.85, -1.70];
+STNBounds(44, :) = [6.46, 3.40];
+STNBounds(45, :) = [4.12, 0.64];
+STNBounds(46, :) = [3.59, -1.48];
+STNBounds(47, :) = [6.65, 1.65];
+STNBounds(48, :) = [5.98, 0.50];
+STNBounds(49, :) = [6.78, 1.30];
+STNBounds(50, :) = [5.90, -0.11];
+STNBounds(51, :) = [6.20, -0.25];
+STNBounds(52, :) = [5.30, -0.05];
+STNBounds(53, :) = [3.10, -1.80];
+
+location = ["[2010-01-07] [Left] [Pass 1] [Center]", ...
+            "[2010-01-07] [Right] [Pass 1] [Center]", ...
+	        "[2010-01-28] [Left] [Pass 3] [Lateral]", ...
+	        "[2010-01-28] [Right] [Pass 1] [Center]", ...
+            "[2010-02-18] [Right] [Pass 1] [Center]", ...
+            "[2010-03-11] [Left] [Pass 2] [Posterior]", ...
+            "[2010-03-25] [Left] [Pass 2] [Center]", ...
+            "[2010-03-25] [Right] [Pass 2] [Anterior]", ...
+            "[2010-04-01] [Right] [Pass 2] [Anterior]", ...
+            "[2010-05-18] [Left] [Pass 1] [Center]", ...
+            "[2010-05-18] [Left] [Pass 2] [Posterior]", ...
+            "[2010-05-18] [Right] [Pass 1] [Center]", ...
+            "[2010-05-18] [Right] [Pass 3] [Posterior Lateral +1]", ...
+            "[2010-06-22] [Right] [Pass 1] [Center]", ...
+            "[2010-07-13] [Left] [Pass 1] [Center]", ...
+            "[2010-07-13] [Left] [Pass 3] [Anterior]", ...
+            "[2010-07-13] [Right] [Pass 2] [Center]", ...
+            "[2010-08-31] [Left] [Pass 1] [Center]", ...
+            "[2010-08-31] [Right] [Pass 1] [Center]", ...
+            "[2010-10-05] [Left] [Pass 1] [Center]", ...
+            "[2010-10-05] [Right] [Pass 1] [Center]", ...
+            "[2010-10-18] [Left] [Pass 1] [Center]", ...
+            "[2010-10-18] [Right] [Pass 1] [Center]", ...
+            "[2010-11-02] [Left] [Pass 1] [Center]", ...
+            "[2010-11-02] [Left] [Pass 2] [Posterior]", ...
+            "[2010-11-02] [Left] [Pass 3] [Anterior]", ...
+            "[2010-11-02] [Left] [Pass 4] [Lateral]", ...
+            "[2010-11-02] [Right] [Pass 1] [Center]", ...
+            "[2010-11-02] [Right] [Pass 2] [Posterior?]", ...
+            "[2010-11-30] [Left] [Pass 1] [Center]", ...
+            "[2010-11-30] [Right] [Pass 1] [Center]", ...
+            "[2010-11-30] [Right] [Pass 2] [Posterior]", ...
+            "[2010-12-07] [Left] [Pass 2] [Posterior]", ...
+            "[2010-12-07] [Left] [Pass 3] [Anterior]", ...
+            "[2010-12-07] [Right] [Pass 1] [Center]", ...
+            "[2010-12-07] [Right] [Pass 2] [Anterior]", ...
+            "[2011-01-18] [Left] [Pass 1] [Center]", ...
+            "[2011-01-18] [Right] [Pass 1] [Center]", ...
+            "[2010-02-15] [Left] [Pass 3] [Posterior]", ...
+            "[2010-02-15] [Right] [Pass 2] [Center]", ...
+            "[2010-02-22] [Left] [Pass 1] [Center]", ...
+            "[2011-02-22] [Right] [Pass 1] [Center]", ...
+            "[2011-02-22] [Right] [Pass 2] [Posterior]", ...
+            "[2011-02-22] [Right] [Pass 3] [Posterior -2]", ...
+            "[2011-05-03] [Left] [Pass 1] [Center]", ...
+            "[2011-05-24] [Left] [Pass 1] [Center]", ...
+            "[2011-05-24] [Right] [Pass 1] [Center]", ...
+            "[2011-06-14] [Left] [Pass 1] [Center]", ...
+            "[2011-06-14] [Right] [Pass 1] [Center]", ...
+            "[2011-07-05] [Left] [Pass 1] [Center]", ...
+            "[2011-07-05] [Right] [Pass 1] [Center]", ...
+            "[2011-08-16] [Left] [Pass 1] [Center]", ...
+            "[2011-08-16] [Right] [Pass 1] [Center]"];
+
+        
 % Add depth (with different scales) as a dimension
 for SCALE = 1 : 5
     
@@ -70,7 +183,7 @@ end
 
 
 
-% 3.1.1 no transformation and fixed k (k = 4)
+% 1.1 no transformation and fixed k (k = 4)
 for i = 1 : 53
     
     disp(['Generating and saving the K-Means clustering figure ' ...
@@ -101,7 +214,7 @@ end
 
 
 
-% 3.1.2 with transformation and fixed k (k = 4)
+% 1.2 with transformation and fixed k (k = 4)
 
 % (1) no depth involved
 for i = 1 : 53
@@ -154,7 +267,7 @@ for i = 1 : 53
 end
 
 
-% 3.1.3 with transformation and optimal k
+% 1.3 with transformation and optimal k
 % (1) Calinski-Harabasz Criterion
 for i = 1 : 53
     
@@ -218,7 +331,7 @@ end
 
 
 
-% 3.1.4 transform + outlier detect + fixed k (k = 4) + weight + depth
+% 1.4 transform + outlier detect + fixed k (k = 4) + weight + depth
 
 % Setup and apply weights to the normalized feature matrix
 weight = [1, ...      % MISI
@@ -332,12 +445,133 @@ for i = 1 : 53
 end
 
 
+% 1.5 K-means + Principal Component Analysis
+
+% (1) without depth scales
+
+PERCENT = [90, 95, 99, 100];
+
+for i = 1 : 53
+    
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    
+    for j = 1 : length(PERCENT)
+        
+        disp(['Using principal components that covers ' ...
+            num2str(PERCENT(j)) '% of the variance ...']);
+        X = importdata(['Data\Feature\pcMat' num2str(i) '_' ...
+            num2str(PERCENT(j)) '%.mat']);
+        [idx, C, sumd, D] = kmeans(X, 4, 'Distance', 'sqeuclidean', ...
+                                         'Start', 'plus', ...
+                                         'Replicates', 10);
+
+        X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+        numEpoch = size(X, 1);
+
+        plotGroupSeries(numEpoch, idx, ...
+            ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+            i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+            ['Figures\K-Means\' num2str(i) '.3.groupSeries_pc' ...
+            num2str(PERCENT(j)) '.bmp']);
+        
+    end
+
+end
+
+% (2) with depth scales
+
+% add depth vector
+PERCENT = [90, 95, 99, 100];
+
+for i = 1 : 53
+
+    disp(['Generating principal component matrix for group ' num2str(i) ' ...']);
+
+    for j = 1 : length(PERCENT)
+        disp(['  using PCs covering ' num2str(PERCENT(j)) '% variance ...']);
+        
+        for SCALE = 1 : 5
+            disp(['    attaching depth vector with depth scale = ' ...
+                num2str(SCALE) '...']);
+
+            % load principal component matrix
+            X = importdata(['Data\Feature\pcMat' num2str(i) '_' ...
+                num2str(PERCENT(j)) '%.mat']);
+            numEpoch = size(X, 1);
+            numFeature = size(X, 2);
+
+            % load depth epoch matrix
+            depthEpoch = importdata(['Data\Epoch\depth' num2str(i) 'Epoch.mat']);
+
+            % get depth vector by averaging depths in each period
+            depthVector = zeros(size(depthEpoch, 1), 1);
+            for k = 1 : size(depthEpoch, 1)
+                depthVector(k) = mean(depthEpoch(k, :));
+            end
+
+            % normalization
+            MAX = max(depthVector);
+            MIN = min(depthVector);
+            for k = 1 : length(depthVector)
+                depthVector(k) = (depthVector(k) - MIN) / (MAX - MIN);
+            end
+
+            % attach the depth vector to the last column of the principical
+            % component matrix
+            for k = 1 : numEpoch
+                X(k, numFeature + 1) = SCALE * depthVector(k);
+            end
+
+            save(['Data\Feature\pcMat' num2str(i) '_' num2str(PERCENT(j)) ...
+                '%_depthScale' num2str(SCALE) '.mat'], 'X', '-v7.3');
+        
+        end
+    
+    end
+    
+end
+
+
+
+for i = 1 : 53
+    
+    disp(['Generating the grouping plot ' num2str(i) '...']);
+    
+    for j = 1 : length(PERCENT)
+        
+        disp(['  Using principal components that covers ' ...
+            num2str(PERCENT(j)) '% of the variance ...']);
+        
+        for SCALE = 1 : 5
+            
+            disp(['    Depth scale = ' num2str(SCALE) '...']);
+            
+            X = importdata(['Data\Feature\pcMat' num2str(i) '_' ...
+                num2str(PERCENT(j)) '%_depthScale' num2str(SCALE) '.mat']);
+            [idx, C, sumd, D] = kmeans(X, 4, 'Distance', 'sqeuclidean', ...
+                                             'Start', 'plus', ...
+                                             'Replicates', 10);
+
+            X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+            numEpoch = size(X, 1);
+
+            plotGroupSeries(numEpoch, idx, ...
+                ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+                i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+                ['Figures\K-Means\' num2str(i) '.3.groupSeries_pc' ...
+                num2str(PERCENT(j)) '%_depthScale' num2str(SCALE) '.bmp']);
+            
+            clearvars -except STNBounds PERCENT location i j SCALE;
+        end
+        
+    end
+
+end
 
 
 
 
-
-%% 3.2 Hierarchical Clustering
+%% 2. Hierarchical Clustering
 X = importdata('Data\Feature\O300\transformNormFeatureMatrix1.mat');
 Y1 = pdist(X, 'euclidean');  % euclidean is default
 Z1 = linkage(Y1, 'average');
@@ -378,7 +612,7 @@ hold off
 
 
 
-%% 3.3 DBSCAN clustering
+%% 3. DBSCAN clustering
 
 for i = 1 : 10
     
@@ -403,26 +637,29 @@ end
 
 
 %% Principal Component Analysis
-X = importdata('Data\Feature\normFeatureMatrix1.mat');
-[coeff, score, latent, tsquared, explained, mu] = pca(X);
 
-cumulexplained = zeros(size(explained));
-sum = 0;
-idxO99 = [];
-for i = 1 : size(explained, 1)
-    sum = sum + explained(i);
-    cumulexplained(i) = sum;
-    if sum > 99
-        idxO99 = [idxO99; i];
+PERCENT = [90, 95, 99, 100];
+numPrinComp = zeros(53, length(PERCENT));
+
+for j = 1 : length(PERCENT)
+    
+    for i = 1 : 53
+        
+        disp(['Generating principal component matrix ' num2str(i) ...
+            ' that covers ' num2str(PERCENT(j)) ...
+            '% variance of the original feature matrix ...']);
+        
+        [minIdxOverPct, ~] = prinCompAnalysis(...
+            ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], PERCENT(j), ...
+            ['Data\Feature\pcMat' num2str(i) '_' num2str(PERCENT(j)) '%.mat']);
+        
+        numPrinComp(i, j) = minIdxOverPct;
     end
+    
 end
 
-minIdxO99 = min(idxO99);
-disp(['The minimum number of principal components that ' ...
-    'counts 99% of the variance: ' minIdxO99]);
 
-princomp99Mat = score(:, 1 : minIdxO99);
 
-disp(['Saving princomp99Mat' num2str(1) '...']);
-save('Data\Feature\princomp99Mat.mat', 'princomp99Mat', '-v7.3');
+
+
 
