@@ -3001,7 +3001,7 @@ for i = 1 : 53
 end
 
 % (2) 500-8000 Hz filter
-for i = 50 : 53
+for i = 1 : 53
     
     % load rawRecording and lfpRecording
     disp(['Loading rawRecording' num2str(i) '.mat...']);
@@ -3048,6 +3048,38 @@ for i = 1 : 53
     clear;
 
 end
+
+
+% Check 500-8000 Hz filter efficacy
+% By comparing the frequency maps: rawSignal vs. hpfSignal
+for i = 1 : 53
+    
+    % load signals
+    rawRecording = importdata(['Data\Raw\rawRecording' num2str(i) '.mat']);
+    hpfSignal = importdata(['Data\Filtered\hpfSignal_500-8000_' num2str(i) '.mat']);
+
+    % generate plots
+    f = figure('visible', 'off');
+    ax(1) = subplot(2, 1, 1);
+    pwelch(rawRecording(:, 2), [], [], [], 48000)
+    title(['Raw Recording ' num2str(i)]);
+    
+    ax(2) = subplot(2, 1, 2);
+    pwelch(hpfSignal, [], [], [], 48000)
+    title(['500-8000 Hz High-Pass Filtered Signal ' num2str(i)]);
+    
+    % save figure as full screen
+    disp(['Saving pwelch plots for hpfSignal ' num2str(i) '...']);
+    saveFigure(f, ['Data\Filtered\pwelchPlot' num2str(i) '_hpf_500-8000.bmp']);
+    
+    % close the figure
+    close all;
+
+    % clear memory
+    clear;
+
+end
+
 
 % check efficacy of lfp band-pass filters
 for i = 1 : 53
@@ -3171,6 +3203,25 @@ for i = 1 : 53
     clear;
     
 end
+
+
+% (1.1) get hpfSignal500-8000 epoch matrices
+for i = 1 : 53
+    
+    disp(['Start group ' num2str(i) ' hpfSignal_500-8000 epoch matrices...']);
+    
+    hpfSignal = importdata(['Data\Filtered\hpfSignal_500-8000_' num2str(i) '.mat']);
+    disp(['    Generating hpfSignalEpoch ' num2str(i) ' (500-8000 Hz) ...']);
+    hpfSignalEpoch = getEpochMatrix(hpfSignal, 4, 48000);
+    disp(['    Saving hpfSignal_500-8000_' num2str(i) 'Epoch.mat...']);
+    save(['Data\Epoch\hpfSignal_500-8000_' num2str(i) 'Epoch.mat'], ...
+        'hpfSignalEpoch', '-v7.3');
+    
+    % clear memory
+    clear;
+    
+end
+
 
 % (2) get depth epoch matrices
 for i = 1 : 53
