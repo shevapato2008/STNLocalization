@@ -202,13 +202,13 @@ for i = 1 : 53
         i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
         ['Figures\K-Means\NoTrans\' num2str(i) '.2.groupSeries.bmp']);
       
-% take a majority vote to smooth the output
-%     newIdx = majorityVote(idx, 10);
-%     
-%     plotGroupSeries(epochNum, newIdx, ...
-%     ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
-%     i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
-%     ['Figures\K-Means\' num2str(i) '.2.1.groupSeries_majvot.bmp']);
+    % take a majority vote to smooth the output
+    %     newIdx = majorityVote(idx, 10);
+    %     
+    %     plotGroupSeries(epochNum, newIdx, ...
+    %     ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+    %     i, location, STNBounds(i, 1), STNBounds(i, 2), 4, ...
+    %     ['Figures\K-Means\' num2str(i) '.2.1.groupSeries_majvot.bmp']);
 
 end
 
@@ -533,6 +533,7 @@ end
 
 
 
+PERCENT = [90, 95, 99, 100];
 for i = 1 : 53
     
     disp(['Generating the grouping plot ' num2str(i) '...']);
@@ -567,6 +568,133 @@ for i = 1 : 53
     end
 
 end
+
+
+
+% 1.6 Use the new group series function
+
+% (1.1) Normalized features w/o depth scales
+for i = 1 : 53
+    
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    
+    X = importdata(['Data\Feature\normFeatureMatrix' num2str(i) '.mat']);
+    [idx, C, sumd, D] = kmeans(X, 4, 'Distance', 'sqeuclidean', ...
+                                     'Start', 'plus', ...
+                                     'Replicates', 10);
+
+    X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+    numEpoch = size(X, 1);
+
+    plotGroupSeriesCL(numEpoch, idx, ...
+        ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+        ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+        i, location, STNBounds(i, 1), STNBounds(i, 2), ...
+        ['Figures\K-Means\' num2str(i) '.3.groupSeries.bmp']);
+
+end
+
+% (1.2) Normalized features w/ depth scales
+for i = 1 : 53
+    
+    disp(['Generating the grouping plot ' num2str(i) '...']);
+    
+    for SCALE = 1 : 5
+
+        disp(['  Depth scale = ' num2str(SCALE) '...']);
+
+        X = importdata(['Data\Feature\normFeatureMatrix' num2str(i) ...
+            '_depthScale' num2str(SCALE) '.mat']);
+        [idx, C, sumd, D] = kmeans(X, 4, 'Distance', 'sqeuclidean', ...
+                                         'Start', 'plus', ...
+                                         'Replicates', 10);
+
+        X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+        numEpoch = size(X, 1);
+
+        plotGroupSeriesCL(numEpoch, idx, ...
+            ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+            ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+            i, location, STNBounds(i, 1), STNBounds(i, 2), ...
+            ['Figures\K-Means\' num2str(i) '.3.groupSeries_depthScale' ...
+                num2str(SCALE) '.bmp']);
+            
+    end
+
+end
+
+% (2.1) PCA w/o depth scales
+PERCENT = [90, 95, 99, 100];
+
+for i = 1 : 53
+    
+    disp(['Generating and saving the grouping plot ' num2str(i) '...']);
+    
+    for j = 1 : length(PERCENT)
+        
+        disp(['Using principal components that covers ' ...
+            num2str(PERCENT(j)) '% of the variance ...']);
+        X = importdata(['Data\Feature\pcMat' num2str(i) '_' ...
+            num2str(PERCENT(j)) '%.mat']);
+        [idx, C, sumd, D] = kmeans(X, 4, 'Distance', 'sqeuclidean', ...
+                                         'Start', 'plus', ...
+                                         'Replicates', 10);
+
+        X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+        numEpoch = size(X, 1);
+
+        plotGroupSeriesCL(numEpoch, idx, ...
+            ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+            ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+            i, location, STNBounds(i, 1), STNBounds(i, 2), ...
+            ['Figures\K-Means\' num2str(i) '.3.groupSeries_pc' ...
+            num2str(PERCENT(j)) '%.bmp']);
+        
+    end
+
+end
+
+% (2.2) PCA w/ depth scales
+PERCENT = [90, 95, 99, 100];
+for i = 1 : 53
+    
+    disp(['Generating the grouping plot ' num2str(i) '...']);
+    
+    for j = 1 : length(PERCENT)
+        
+        disp(['  Using principal components that covers ' ...
+            num2str(PERCENT(j)) '% of the variance ...']);
+        
+        for SCALE = 1 : 5
+            
+            disp(['    Depth scale = ' num2str(SCALE) '...']);
+            
+            X = importdata(['Data\Feature\pcMat' num2str(i) '_' ...
+                num2str(PERCENT(j)) '%_depthScale' num2str(SCALE) '.mat']);
+            [idx, C, sumd, D] = kmeans(X, 4, 'Distance', 'sqeuclidean', ...
+                                             'Start', 'plus', ...
+                                             'Replicates', 10);
+
+            X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
+            numEpoch = size(X, 1);
+
+            plotGroupSeriesCL(numEpoch, idx, ...
+                ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
+                ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
+                i, location, STNBounds(i, 1), STNBounds(i, 2), ...
+                ['Figures\K-Means\' num2str(i) '.3.groupSeries_pc' ...
+                num2str(PERCENT(j)) '%_depthScale' num2str(SCALE) '.bmp']);
+            
+            clearvars -except STNBounds PERCENT location i j SCALE;
+        end
+        
+    end
+
+end
+
+
+
+
 
 
 
