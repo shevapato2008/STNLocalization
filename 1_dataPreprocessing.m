@@ -3150,12 +3150,12 @@ for i = 1 : 53
     
     disp(['Start group ' num2str(i) ' epoch matrices...']);
     
-    hpfSignal = importdata(['Data\Filtered\hpfSignal' num2str(i) '.mat']);
-    disp(['    Generating hpfSignalEpoch' num2str(i) '...']);
-    hpfSignalEpoch = getEpochMatrix(hpfSignal, 4, 48000);
-    disp(['    Saving hpfSignalEpoch' num2str(i) '.mat...']);
-    save(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat'], ...
-        'hpfSignalEpoch', '-v7.3');
+%     hpfSignal = importdata(['Data\Filtered\hpfSignal' num2str(i) '.mat']);
+%     disp(['    Generating hpfSignalEpoch' num2str(i) '...']);
+%     hpfSignalEpoch = getEpochMatrix(hpfSignal, 4, 48000);
+%     disp(['    Saving hpfSignalEpoch' num2str(i) '.mat...']);
+%     save(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat'], ...
+%         'hpfSignalEpoch', '-v7.3');
     
     alphaSignal = importdata(['Data\Filtered\alphaSignal' num2str(i) '.mat']);
     disp(['    Generating alphaSignalEpoch' num2str(i) '...']);

@@ -8,7 +8,9 @@ function [ output_args ] = getFeatureMatrix(index, numFeature, ...
 % spike-dependent features and spike independent features. Then save it
 % to featureMatrix folder.
 
+
 disp(['Start generating featureMatrix' num2str(index) '...']);
+
 
 % (1) Spike dependent features
 
@@ -82,7 +84,7 @@ for i = 1 : numEpoch
 end
 
 
-%{
+
 % (3) lfp-based features
 disp('Creating lfp-based features...')
 
@@ -97,7 +99,7 @@ highGammaSignalEpoch = importdata(highGammaSignalEpochPath);    % high gamma sig
 
 % Load function handle of lfp dependent features
 ldf = lfpDepFeatures;
-lfpFeatureMatrix = zeros(numEpoch, 35);
+lfpFeatureMatrix = zeros(size(alphaSignalEpoch, 1), 35);
 
 % (3.1) alpha band (9 - 11 Hz) related features
 for i = 1 : numEpoch
@@ -217,7 +219,6 @@ for i = 1 : numEpoch
     lfpFeatureMatrix(i, 35) = ldf.zerocrossxw(highGammaSignalEpoch(i, :));
     
 end
-%}
 
 
 % (4) Deal with missing values: last observation carried forward
@@ -235,10 +236,10 @@ end
 disp(['Saving featureMatrix' num2str(index) '...']);
 save(featureMatrixPath, 'featureMatrix', '-v7.3');
 
-%{
+
 disp(['Saving lfpFeatureMatrix' num2str(index) '...']);
 save(lfpFeatureMatrixPath, 'lfpFeatureMatrix', '-v7.3');
-%}
+
 
 end
 

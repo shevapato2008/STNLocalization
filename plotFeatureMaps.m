@@ -224,7 +224,6 @@ saveFigure(f, imagePath2);
 close all
 
 
-%{
 % (3) feature maps for lfp-based features
 
 % lfp-related band-pass signals
@@ -300,7 +299,6 @@ saveFigure(f, char(image3Path));
 close all
 
 end
-%}
 
 
 end
