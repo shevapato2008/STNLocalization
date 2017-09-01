@@ -42,7 +42,7 @@ for i = 1 : 53
     disp(['Generating and saving scatterplot ' num2str(i) ' before transformation...']);
     featureScatterplot( ...
         ['Pairwise Feature Scatter Plots before Transformation ' num2str(i)], ...
-        ['Data\Feature\featureMatrix' num2str(i) '.mat'], ...
+        ['Data\Feature\featureMatrix_500-8000_' num2str(i) '.mat'], ...
         ['Figures\Scatterplot\' num2str(i) '.1.orig.bmp']);
     
     close all;
@@ -68,7 +68,7 @@ for i = 1 : 53
 end
 
 % Scatter plot after transformation
-for i = 1 : 53
+for i = 1
     
     disp(['Generating and saving scatterplot ' num2str(i) ' after transformation...']);
     featureScatterplot( ...
@@ -128,7 +128,7 @@ end
 
 
 % Scatter plot after normalization
-for i = 1 : 53
+for i = 1
     
     disp(['Generating and saving scatterplot ' num2str(i) ' after normalization...']);
     featureScatterplot( ...
@@ -309,7 +309,14 @@ for i = 1 : 53
     f = figure('visible', 'off');
     saveas(gcf, ['Figures\ActivityMap\lfp\' num2str(i) 'z.bmp']);
     close all;
-end;
+end
 
 
 
+%% plot raw recording 21 with shaded area marking the STN region
+for i = 1 : 53
+    disp(['Plot and save raw recording map ' num2str(i) '...']);
+    plotRawRecording(['Data\Raw\rawRecording' num2str(i) '.mat'], ...
+        ['Figures/ActivityMap/rawRecordingMap/rawRecordingMap' num2str(i) '.bmp'], ...
+        STNBounds(i, 1), STNBounds(i, 2));
+end
