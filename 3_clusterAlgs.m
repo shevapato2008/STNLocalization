@@ -574,7 +574,7 @@ end
 % 1.6 Use the new group series function
 
 % (1.1) Normalized features w/o depth scales
-for i = 1 : 53
+for i = 52
     
     disp(['Generating and saving the grouping plot ' num2str(i) '...']);
     
@@ -586,7 +586,7 @@ for i = 1 : 53
     X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
     numEpoch = size(X, 1);
 
-    plotGroupSeriesCL(numEpoch, idx, ...
+    idx2 = plotGroupSeriesCL(numEpoch, idx, ...
         ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
         ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
         i, location, STNBounds(i, 1), STNBounds(i, 2), ...
@@ -595,11 +595,11 @@ for i = 1 : 53
 end
 
 % (1.2) Normalized features w/ depth scales
-for i = 1 : 53
+for i = 53
     
     disp(['Generating the grouping plot ' num2str(i) '...']);
     
-    for SCALE = 1 : 5
+    for SCALE = 2
 
         disp(['  Depth scale = ' num2str(SCALE) '...']);
 
@@ -612,7 +612,7 @@ for i = 1 : 53
         X = importdata(['Data\Epoch\hpfSignal' num2str(i) 'Epoch.mat']);
         numEpoch = size(X, 1);
 
-        plotGroupSeriesCL(numEpoch, idx, ...
+        idx2 = plotGroupSeriesCL(numEpoch, idx, ...
             ['Data\Feature\normFeatureMatrix' num2str(i) '.mat'], ...
             ['Data\Epoch\depth' num2str(i) 'Epoch.mat'], ...
             i, location, STNBounds(i, 1), STNBounds(i, 2), ...
@@ -622,6 +622,7 @@ for i = 1 : 53
     end
 
 end
+
 
 % (2.1) PCA w/o depth scales
 PERCENT = [90, 95, 99, 100];
